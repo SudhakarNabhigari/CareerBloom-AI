@@ -127,7 +127,20 @@ function AuthPage({ mode }: { mode: 'login' | 'register' }) {
     finally { setBusy(false); }
   }
   return <main className="auth-page">
-    <aside className="auth-aside"><Logo /><div><p className="eyebrow">A little progress, every day</p><h1>Your next chapter starts with a plan.</h1><p>Make sense of your career goals, build the skills that matter, and see your progress take shape.</p></div><div className="auth-note">A private, browser-only workspace for your career journey.</div></aside>
+    <aside className="auth-aside">
+      <Logo />
+      <div className="auth-aside-content">
+        <p className="eyebrow"><Sparkles size={14} /> A little progress, every day</p>
+        <h1>Your next chapter starts with a plan.</h1>
+        <p>Make sense of your career goals, build the skills that matter, and see your progress take shape.</p>
+        <div className="auth-path" aria-label="How CareerBloom helps">
+          <div className="auth-path-step"><span className="auth-path-icon"><Compass size={16} /></span><span><strong>Choose a direction</strong><small>Find a role that feels right</small></span></div>
+          <div className="auth-path-step"><span className="auth-path-icon auth-path-blue"><Target size={16} /></span><span><strong>Build the right skills</strong><small>Focus on what moves you forward</small></span></div>
+          <div className="auth-path-step"><span className="auth-path-icon auth-path-green"><Activity size={16} /></span><span><strong>See your progress</strong><small>Make every small step count</small></span></div>
+        </div>
+      </div>
+      <div className="auth-note">A private, browser-only workspace for your career journey.</div>
+    </aside>
     <section className="auth-main"><form className="auth-form" onSubmit={submit} data-testid={`form-${mode}`}>
       <p className="eyebrow">{register ? 'Create your workspace' : 'Welcome back'}</p><h2>{register ? 'Start with your name' : 'Sign in to CareerBloom'}</h2>
       <p className="lead">{register ? 'Your roadmap will grow around the role you want.' : 'Pick up where your preparation left off.'}</p>
@@ -207,29 +220,107 @@ function SkillRecommendation({ career, levels }: { career: Career; levels: Recor
 }
 function Dashboard() {
   const { state } = useStore(); const career = getCareer(state.careerId); const [, setPath] = useLocation();
-  const readiness = assessReadiness(career, state.skillLevels); const done = state.roadmapDone.length; const next = career.roadmap.find((item) => !state.roadmapDone.includes(item.title));
+  const readiness = assessReadiness(career, state.skillLevels);
+  const done = career.roadmap.filter((item) => state.roadmapDone.includes(item.title)).length;
+  const next = career.roadmap.find((item) => !state.roadmapDone.includes(item.title));
   const today = new Date().toISOString().slice(0, 10);
   const tasksToday = state.plannerTasks.filter((task) => !task.completed && task.dueDate === today);
+  const tasksDone = state.plannerTasks.filter((task) => task.completed).length;
   const history = state.assessmentHistory.slice(-8).map((snapshot, index) => ({ name: `Check-in ${index + 1}`, value: snapshot.average }));
-  return <><PageHeading eyebrow="Your career workspace" title={`Welcome back, ${state.user?.name}.`} detail={`You're preparing for ${career.title}. Keep it practical: choose one skill, then put it to work.`} action={<button className="btn btn-secondary" onClick={() => setPath('/careers')} data-testid="button-dashboard-change-career"><Compass size={15} /> Explore roles</button>} />
-    <div className="grid grid-3" style={{ marginBottom: 18 }}>
-      <div className="card"><div className="card-title-row"><span className="stat-label">Self-assessed alignment</span><span className="stat-icon"><Target size={17} /></span></div><div className="stat-value" data-testid="text-readiness-value">{readiness}%</div><div className="stat-label">A snapshot of your ratings against this role's skill targets.</div></div>
-      <div className="card"><div className="card-title-row"><span className="stat-label">Roadmap milestones</span><span className="stat-icon"><BookOpen size={17} /></span></div><div className="stat-value" data-testid="text-roadmap-progress">{done}<span style={{ color: '#9a9cac', fontSize: 16 }}> / {career.roadmap.length}</span></div><div className="progress-track" style={{ marginTop: 12 }}><div className="progress-fill" style={{ width: `${done / career.roadmap.length * 100}%` }} /></div></div>
-      <div className="card"><div className="card-title-row"><span className="stat-label">Planner tasks done</span><span className="stat-icon"><CheckCircle2 size={17} /></span></div><div className="stat-value" data-testid="text-task-progress">{state.plannerTasks.filter((task) => task.completed).length}<span style={{ color: '#9a9cac', fontSize: 16 }}> / {state.plannerTasks.length}</span></div><div className="stat-label">Recorded tasks; no sample history is included.</div></div>
-    </div>
-    <div className="dashboard-grid">
-      <div style={{ display: 'grid', gap: 18 }}>
-        <section className="card"><div className="card-title-row"><div><p className="eyebrow">A useful next step</p><h2>{next ? next.title : 'Your roadmap is complete'}</h2></div><span className="badge badge-lavender">{next ? `Week ${next.week}` : 'Nice work'}</span></div>{next ? <><p className="lead">{next.project}</p><div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '14px 0 17px' }}>{next.skills.map((skill) => <span className="skill-pill" key={skill}>{skill}</span>)}<span className="skill-pill"><Clock3 size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />{next.hours} hours</span></div><button className="btn btn-primary" onClick={() => setPath('/roadmap')} data-testid="button-open-next-milestone">Open roadmap <ArrowRight size={15} /></button></> : <button className="btn btn-secondary" onClick={() => setPath('/skills')}>Review skills</button>}</section>
-        <section className="card"><div className="card-title-row"><div><p className="eyebrow">Progress you have recorded</p><h2>Assessment check-ins</h2></div><Link className="btn btn-ghost btn-small" href="/analytics" data-testid="link-dashboard-analytics">See analytics <ArrowRight size={14} /></Link></div>{history.length ? <div className="chart-wrap"><ResponsiveContainer width="100%" height="100%"><AreaChart data={history}><defs><linearGradient id="dashProgress" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8378d1" stopOpacity={0.22} /><stop offset="95%" stopColor="#8378d1" stopOpacity={0.01} /></linearGradient></defs><CartesianGrid stroke="#efeff5" vertical={false} /><XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: '#888da0' }} /><YAxis domain={[0, 100]} tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: '#888da0' }} /><Tooltip /><Area type="monotone" dataKey="value" name="Alignment" stroke="#786bc7" strokeWidth={2} fill="url(#dashProgress)" /></AreaChart></ResponsiveContainer></div> : <EmptyState icon={Activity} title="Your progress starts with a check-in" detail="Rate your skills in Skill assessment. We’ll show real changes here over time." action={<button className="btn btn-secondary btn-small" onClick={() => setPath('/skills')} data-testid="button-start-assessment">Assess my skills</button>} />}</section>
+  return <div className="dashboard-v2">
+    <section className="dashboard-welcome">
+      <div>
+        <p className="eyebrow dash-eyebrow"><Sparkles size={14} /> Your career workspace</p>
+        <h1>Welcome back, {state.user?.name}!</h1>
+        <p className="lead">You're exploring a path toward <strong>{career.title}</strong>. Start small, stay curious, and let your progress build.</p>
       </div>
-      <div style={{ display: 'grid', gap: 18, alignContent: 'start' }}>
-        <section className="card"><div className="card-title-row"><h2>Skill picture</h2><span className="badge">{career.skills.length} skills</span></div><div style={{ display: 'grid', gap: 14 }}>{career.skills.slice(0, 4).map((skill) => { const level = state.skillLevels[skill.name] || 0; return <div key={skill.name}><div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}><span style={{ fontWeight: 700 }}>{skill.name}</span><span style={{ color: 'var(--muted)' }}>{strengthName(level)}</span></div><div className="progress-track"><div className="progress-fill" style={{ width: `${level / skill.targetLevel * 100}%` }} /></div></div>; })}</div><button className="btn btn-ghost btn-small" style={{ marginTop: 14, paddingLeft: 0 }} onClick={() => setPath('/skills')} data-testid="button-dashboard-skills">Update self-ratings <ArrowRight size={14} /></button></section>
-        <section className="card"><div className="card-title-row"><h2>Today's tasks</h2><CalendarDays size={17} color="#7a70c6" /></div>{tasksToday.length ? tasksToday.map((task) => <div className="task-row" key={task.id}><span className="badge">{task.priority}</span><div className="task-copy"><div className="task-title">{task.title}</div></div></div>) : <p className="lead" style={{ fontSize: 12 }}>Nothing due today. Plan a small step toward {career.title}.</p>}<button className="btn btn-secondary btn-small" onClick={() => setPath('/planner')} data-testid="button-dashboard-planner">Open planner <ArrowRight size={14} /></button></section>
-        <section className="card" style={{ background: '#f0eefb', borderColor: '#e8e4f7' }}><p className="eyebrow">A little support</p><h3>Not sure what to work on?</h3><p className="lead" style={{ fontSize: 12 }}>Ask for a local, role-aware suggestion grounded in your self-ratings.</p><button className="btn btn-secondary btn-small" onClick={() => setPath('/coach')} data-testid="button-dashboard-coach"><MessageCircle size={14} /> Talk it through</button></section>
+      <button className="btn btn-secondary" onClick={() => setPath('/careers')} data-testid="button-dashboard-change-career"><Compass size={15} /> Explore roles <ArrowRight size={14} /></button>
+    </section>
+
+    <section className="dash-overview-strip" aria-label="Your progress at a glance">
+      <div className="dash-alignment-block">
+        <div className="dash-ring" role="img" aria-label={`${readiness}% self-assessed alignment`} style={{ background: `conic-gradient(#7771cf ${readiness}%, #e9e8f4 0)` }}>
+          <div className="dash-ring-label"><strong data-testid="text-readiness-value">{readiness}%</strong><span>aligned</span></div>
+        </div>
+        <div className="dash-alignment-copy">
+          <span className="dash-stat-label">Self-assessed alignment</span>
+          <strong>{readiness > 0 ? 'Your check-in is recorded.' : 'A first rating is still ahead.'}</strong>
+          <button className="dash-text-link" onClick={() => setPath('/skills')} data-testid="button-start-assessment">{readiness > 0 ? 'Update your check-in' : 'Start your check-in'} <ArrowRight size={14} /></button>
+        </div>
       </div>
+      <div className="dash-stat-block">
+        <span className="dash-stat-icon dash-icon-lavender"><BookOpen size={17} /></span>
+        <div className="dash-stat-content"><span className="dash-stat-label">Roadmap milestones</span><strong data-testid="text-roadmap-progress">{done}<small> / {career.roadmap.length}</small></strong><span className="dash-stat-foot">{done ? `${done} completed so far` : 'A four-step path, ready when you are'}</span></div>
+      </div>
+      <div className="dash-stat-block">
+        <span className="dash-stat-icon dash-icon-blue"><CheckCircle2 size={17} /></span>
+        <div className="dash-stat-content"><span className="dash-stat-label">Planner tasks done</span><strong data-testid="text-task-progress">{tasksDone}<small> / {state.plannerTasks.length}</small></strong><span className="dash-stat-foot">{state.plannerTasks.length ? `${state.plannerTasks.length - tasksDone} open task${state.plannerTasks.length - tasksDone === 1 ? '' : 's'} in your planner` : 'Your planner is ready for a first task'}</span></div>
+      </div>
+    </section>
+
+    <div className="dash-content-grid">
+      <div className="dash-main-column">
+        <section className="dash-next-card">
+          <div className="dash-next-topline">
+            <span className="dash-section-label"><span className="dash-spark-icon"><Sparkles size={13} /></span> A useful next step</span>
+            <span className="dash-week-badge"><span /> {next ? `WEEK ${String(next.week).padStart(2, '0')}` : 'ROADMAP COMPLETE'}</span>
+          </div>
+          <div className="dash-next-body">
+            <div className="dash-next-copy">
+              <h2>{next ? next.title : 'Your roadmap is complete.'}</h2>
+              {next ? <p>{next.project}</p> : <p>Review your skills and choose a new goal to keep moving forward.</p>}
+              {next && <div className="dash-chip-row">{next.skills.map((skill) => <span className="dash-skill-chip" key={skill}>{skill}</span>)}<span className="dash-skill-chip dash-hours-chip"><Clock3 size={12} /> {next.hours} hours</span></div>}
+              <button className="btn btn-primary" onClick={() => setPath(next ? '/roadmap' : '/skills')} data-testid="button-open-next-milestone">{next ? 'Open roadmap' : 'Review skills'} <ArrowRight size={15} /></button>
+            </div>
+            <div className="dash-foundation-art" aria-hidden="true">
+              <div className="dash-orbit dash-orbit-one" /><div className="dash-orbit dash-orbit-two" /><div className="dash-orbit dash-orbit-three" />
+              <div className="dash-art-center"><BookOpen size={27} strokeWidth={1.6} /></div>
+              <span className="dash-art-dot dash-art-dot-one" /><span className="dash-art-dot dash-art-dot-two" /><span className="dash-art-dot dash-art-dot-three" />
+              <span className="dash-art-note">START<br />WITH ONE</span>
+            </div>
+          </div>
+          <div className="dash-next-foot"><span><span className="dash-foot-dot" />{done ? `${done} of ${career.roadmap.length} milestones complete` : 'No milestones started yet'}</span><button onClick={() => setPath('/roadmap')} data-testid="link-dashboard-roadmap">View all {career.roadmap.length} steps <ArrowRight size={13} /></button></div>
+        </section>
+
+        <section className="dash-panel dash-assessment-panel">
+          <div className="dash-panel-heading">
+            <div><span className="dash-section-label">Your progress, over time</span><h2>Assessment check-ins</h2></div>
+            <Link className="btn btn-ghost btn-small" href="/analytics" data-testid="link-dashboard-analytics">See analytics <ArrowRight size={14} /></Link>
+          </div>
+          {history.length ? <div className="chart-wrap"><ResponsiveContainer width="100%" height="100%"><AreaChart data={history}><defs><linearGradient id="dashProgress" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8378d1" stopOpacity={0.22} /><stop offset="95%" stopColor="#8378d1" stopOpacity={0.01} /></linearGradient></defs><CartesianGrid stroke="#efeff5" vertical={false} /><XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: '#888da0' }} /><YAxis domain={[0, 100]} tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: '#888da0' }} /><Tooltip /><Area type="monotone" dataKey="value" name="Alignment" stroke="#786bc7" strokeWidth={2} fill="url(#dashProgress)" /></AreaChart></ResponsiveContainer></div> : <EmptyState icon={Activity} title="Your story starts with a check-in" detail="Rate your skills when you're ready. Your real progress will appear here over time." action={<button className="btn btn-secondary btn-small" onClick={() => setPath('/skills')} data-testid="button-start-assessment-empty">Assess my skills <ArrowRight size={13} /></button>} />}
+        </section>
+      </div>
+
+      <aside className="dash-side-column">
+        <section className="dash-panel dash-skills-panel">
+          <div className="dash-panel-heading dash-skills-heading"><div><span className="dash-section-label">Your role, in focus</span><h2>Skill picture</h2></div><span className="dash-count-pill">{String(career.skills.length).padStart(2, '0')} skills</span></div>
+          <div className="dash-skill-list">{career.skills.map((skill, index) => {
+            const level = state.skillLevels[skill.name] || 0;
+            return <div className="dash-skill-row" key={skill.name}>
+              <span className={`dash-skill-index dash-index-${index + 1}`}>{String(index + 1).padStart(2, '0')}</span>
+              <div className="dash-skill-info"><strong>{skill.name}</strong><div className="dash-skill-track"><span style={{ width: `${Math.min(level / skill.targetLevel, 1) * 100}%` }} /></div></div>
+              <span className="dash-skill-level">{strengthName(level)}</span>
+            </div>;
+          })}</div>
+          <button className="btn btn-secondary btn-small dash-ratings-button" onClick={() => setPath('/skills')} data-testid="button-dashboard-skills">Update self-ratings <ArrowRight size={14} /></button>
+        </section>
+
+        <section className="dash-panel dash-tasks-panel">
+          <div className="dash-panel-heading dash-tasks-heading"><div><span className="dash-section-label">Make a little room</span><h2>Today's tasks</h2></div><span className="dash-calendar-icon"><CalendarDays size={17} /></span></div>
+          {tasksToday.length ? <div className="dash-task-list">{tasksToday.slice(0, 3).map((task) => <div className="dash-task-row" key={task.id}><span className={`badge ${task.priority === 'High' ? 'badge-red' : task.priority === 'Medium' ? 'badge-amber' : 'badge-green'}`}>{task.priority}</span><span className="dash-task-title">{task.title}</span></div>)}</div> : <p className="dash-tasks-note"><Sparkles size={13} /> Nothing due today. That's a good place to begin.</p>}
+          <button className="btn btn-secondary btn-small dash-planner-button" onClick={() => setPath('/planner')} data-testid="button-dashboard-planner">Open planner <ArrowRight size={14} /></button>
+        </section>
+
+        <section className="dash-support-card">
+          <span className="dash-support-icon"><MessageCircle size={18} /></span>
+          <div className="dash-support-copy"><span className="dash-section-label">A little support</span><h3>Not sure where to start?</h3><p>Get a role-aware suggestion, grounded in your own reflections.</p></div>
+          <button className="dash-support-action" onClick={() => setPath('/coach')} aria-label="Talk it through" data-testid="button-dashboard-coach"><ArrowRight size={16} /></button>
+        </section>
+      </aside>
     </div>
-    <div style={{ marginTop: 18 }}><SkillRecommendation career={career} levels={state.skillLevels} /></div>
-  </>;
+
+    <footer className="dash-footer-note"><span className="dash-footer-spark"><Sparkles size={14} /></span><SkillRecommendation career={career} levels={state.skillLevels} /><button onClick={() => setPath('/skills')} data-testid="button-dashboard-next-focus">Choose a starting point <ArrowRight size={14} /></button></footer>
+  </div>;
 }
 function CareerDiscovery() {
   const { state, setState } = useStore(); const [query, setQuery] = useState(''); const [category, setCategory] = useState('All'); const [selected, setSelected] = useState(state.careerId || ''); const [, setPath] = useLocation(); const { notify, Toast } = useNotify();
