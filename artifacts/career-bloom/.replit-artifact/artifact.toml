@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "CareerBloom AI"
+description = "A browser-based career readiness workspace for students to explore roles, assess skills, follow a learning roadmap, organize daily actions, analyze a resume locally, and track preparation progress."
+version = "1.0.0"
+id = "artifacts/career-bloom"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25919
+
+[services.development]
+run = "pnpm --filter @workspace/career-bloom run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/career-bloom", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/career-bloom/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25919"
+BASE_PATH = "/"

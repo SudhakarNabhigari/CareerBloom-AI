@@ -1,0 +1,430 @@
+# Project: CareerBloom AI — From Student to Job-Ready
+
+Act as a senior frontend engineer, product designer, and UI/UX specialist. Build a complete, polished, fully functional frontend web application called **CareerBloom AI** for the HyperBloom October UI/UX and Web Design Hackathon.
+
+## 1. Product Vision
+
+CareerBloom AI helps college students understand their career goals, identify missing skills, create personalized learning roadmaps, analyze resumes against target careers, track improvement, and prepare for their dream jobs.
+
+The application must solve a real student problem through thoughtful UX, accessibility, originality, intuitive navigation, and a visually compelling design.
+
+Do not create just a static landing page or a dashboard mockup. Build a working frontend prototype with functional forms, navigation, search, interactions, charts, resume analysis, and persistent demo data.
+
+## 2. Mandatory Technology Stack
+
+Use the following technologies:
+
+- React
+- Vite
+- Tailwind CSS
+- Recharts for charts and graphs
+- Browser localStorage for demo data persistence
+- GitHub-ready project structure
+- Vercel-ready deployment configuration
+
+Use JavaScript or JSX unless TypeScript is clearly beneficial. Use Lucide icons or another consistent icon library.
+
+**Frontend only:** Do not require a backend, database server, or paid API to run the application. All core features must work locally with sample career data, client-side logic, and localStorage.
+
+AI API integration may be optional. If no API key is configured, provide clearly labelled local demo recommendations. Never pretend a real AI model was called when it was not.
+
+## 3. Visual Design Requirements
+
+Create a premium, clean, modern SaaS experience.
+
+Design direction:
+- Light background with white surfaces and subtle lavender/blue accents.
+- Dark navy text with accessible contrast.
+- Soft gradients used sparingly.
+- Consistent spacing, rounded cards, subtle shadows, and clean borders.
+- Beautiful typography and clear visual hierarchy.
+- Professional charts, progress indicators, and skill badges.
+- Minimal clutter, no excessive gradients, no unnecessary animations.
+- Responsive layouts for desktop, tablet, and mobile.
+- Accessible focus states, keyboard navigation, readable labels, and meaningful error messages.
+
+Use a consistent design system for colors, typography, spacing, buttons, cards, inputs, and status indicators.
+
+Avoid generic template styling. Create an original and cohesive visual identity for CareerBloom AI.
+
+## 4. Authentication and First-Time User Flow
+
+The first screen must be a Login/Register page.
+
+### Registration
+Include:
+- Full name
+- Password
+- Confirm password
+- Show/hide password control
+- Form validation
+- Password mismatch error
+- Clear registration success feedback
+
+Save demo account information locally so the user can log in again in the same browser.
+
+Do not store plaintext passwords. For a frontend-only demonstration, use an appropriate browser-side password hashing approach if feasible, and clearly explain that this is not production-grade authentication. Never imply localStorage authentication is secure for real accounts.
+
+### Login
+Include:
+- Name or username
+- Password
+- Login button
+- Link to registration
+- Validation and helpful error messages
+- Logout functionality
+
+After successful login, display a welcoming screen:
+
+**“Welcome to CareerBloom, [Username]!”**
+
+Use the registered user's name dynamically.
+
+Then show the heading:
+
+**“Select Your Dream Career”**
+
+Include a searchable career selector with suggestions and a clearly visible Search button. Searching should filter the available careers and show the matching result. Handle empty queries and no-results states gracefully.
+
+Include sample careers such as:
+- Generative AI Engineer
+- AI/ML Engineer
+- Data Scientist
+- Data Analyst
+- Full-Stack Developer
+- Frontend Developer
+- Backend Developer
+- Cloud Engineer
+- Cybersecurity Analyst
+- UI/UX Designer
+- Product Manager
+- DevOps Engineer
+
+Allow the user to select a career, view a short description and required skills, and confirm the selection using a **“Build My Roadmap”** button.
+
+Persist the selected career.
+
+## 5. Main Application Layout
+
+After the user selects a career, open the main dashboard.
+
+Create a clean sidebar on desktop and an accessible mobile navigation menu.
+
+Sidebar items:
+1. Overview
+2. Career Discovery
+3. Skill Gap Analyzer
+4. My Roadmap
+5. Daily Planner
+6. Resume Analyzer
+7. Improvement Analytics
+8. AI Career Coach
+9. Settings
+
+Include:
+- CareerBloom AI logo and branding
+- Current user's name
+- Selected career
+- Profile menu
+- Logout action
+- Clear active navigation states
+
+The main dashboard should begin with:
+
+**“Welcome back, [Username]!”**
+
+Display the selected dream career and a concise next-step recommendation.
+
+## 6. Feature One — Career Discovery
+
+Build a functional career exploration page.
+
+Requirements:
+- Searchable career list
+- Career category filters
+- Career cards with titles and descriptions
+- Required skills for each role
+- Beginner/intermediate/advanced skill levels where appropriate
+- Career selection and switching
+- “Choose This Career” action
+- Clear empty and loading states where appropriate
+
+Use realistic sample data for multiple careers.
+
+Changing a career should update the selected career and related roadmap data consistently.
+
+## 7. Feature Two — Skill Gap Analyzer
+
+Build an interactive skill assessment.
+
+Requirements:
+- Display skills relevant to the selected career.
+- Let users rate their proficiency using a consistent scale, such as Beginner, Intermediate, and Advanced.
+- Compare their self-assessed skills with predefined target expectations for that career.
+- Highlight strengths, missing skills, and skills that need improvement.
+- Show a clear summary of skill gaps.
+- Recommend specific learning topics or courses for missing skills.
+- Allow users to update their assessments.
+- Persist changes in localStorage.
+
+Show the calculation method clearly. Do not present a subjective assessment as an objective guarantee of job readiness.
+
+## 8. Feature Three — Personalized Career Roadmap
+
+Generate a structured roadmap based on the selected career and identified skill gaps.
+
+Include:
+- Weekly learning milestones
+- Skills to learn
+- Suggested learning resources or course topics
+- Practical projects
+- Estimated time for each milestone
+- Completion checkboxes
+- Progress indicators
+- Completed, current, and upcoming stages
+- Next recommended action
+
+Use realistic, predefined roadmap templates for the sample careers.
+
+Roadmap completion must update the dashboard and improvement analytics.
+
+Make the roadmap visually engaging using a timeline or milestone-based layout.
+
+## 9. Feature Four — Daily Action Planner
+
+Create an interactive task planner.
+
+Requirements:
+- Add a task
+- Edit a task
+- Delete a task
+- Mark tasks complete or incomplete
+- Set a due date
+- Set priority: Low, Medium, High
+- Filter tasks by status and priority
+- Show today's tasks and upcoming tasks
+- Display completion statistics
+- Show a useful empty state
+- Persist tasks in localStorage
+
+Provide sensible sample tasks for a new user.
+
+Completing a task should update relevant progress indicators and analytics.
+
+## 10. Feature Five — AI Career Coach
+
+Create a polished conversational coaching interface.
+
+The coach should help users understand:
+- Which skill to learn next
+- Which project to build
+- How to improve their learning routine
+- How to prepare for their selected career
+- How to address skill gaps
+- How to plan their next week
+
+For the no-backend version, implement a clearly labelled local demo coach using career data, skill gaps, roadmap information, and predefined recommendation logic.
+
+Include suggested question buttons, message history for the current session, clear loading/response states, and useful error handling.
+
+If optional AI API integration is added, call it only through a secure server-side proxy. Never expose private API keys in frontend code or Vite environment variables shipped to the browser.
+
+Do not claim that demo responses are generated by a real AI model.
+
+## 11. Feature Six — Smart Resume Analyzer
+
+This is a major feature and must be functional.
+
+Create a resume upload interface that supports PDF and DOCX files.
+
+Requirements:
+- Drag-and-drop upload
+- Browse file button
+- File type and size validation
+- Upload progress or processing feedback
+- Resume preview or extracted text preview
+- Clear error handling for unsupported or unreadable files
+- Option to remove the file and upload another
+
+Use appropriate browser-compatible PDF and DOCX parsing libraries where feasible.
+
+After uploading:
+1. Extract the resume text in the browser.
+2. Compare the extracted content against the user's selected career requirements.
+3. Identify skills already mentioned in the resume.
+4. Identify relevant missing skills.
+5. Suggest learning topics or course recommendations for those missing skills.
+6. Suggest suitable portfolio projects.
+7. Provide resume improvement tips based on the selected role.
+8. Show a transparent analysis summary.
+
+Example:
+
+Selected career: Generative AI Engineer.
+
+If the resume mentions Python and basic machine learning but does not mention retrieval-augmented generation, vector databases, or LLM evaluation, recommend learning those topics when relevant to the role's configured skill profile.
+
+Show:
+- Detected skills
+- Relevant missing skills
+- Suggested learning topics
+- Recommended portfolio projects
+- Resume improvement suggestions
+
+Use transparent rule-based text matching for the frontend-only version. Do not claim the analysis is an authoritative ATS score or real AI assessment. Make it clear that results depend on the text extracted from the uploaded file and the configured career requirements.
+
+Handle sensitive data carefully. Analyze files locally in the browser, do not upload them to external services by default, and allow the user to remove the uploaded resume and clear the extracted text.
+
+## 12. Feature Seven — Improvement Analytics Graph
+
+Build a dedicated analytics page using Recharts.
+
+The purpose is to show how the user's preparation and skills improve over time.
+
+Include:
+- A line chart showing progress across weeks.
+- A skill proficiency chart comparing previous and current assessments.
+- Roadmap completion percentage.
+- Daily planner task completion rate.
+- Number of skills improved.
+- Learning activity summary.
+- A weekly progress overview.
+- A clear explanation of what each metric means.
+
+Use real values calculated from the app's stored user actions and assessment history wherever possible.
+
+Store timestamped skill assessment snapshots and update them when users change their assessments.
+
+For first-time users without history, display a helpful empty state or explicitly labelled sample/demo data. Never invent historical improvement and present it as the user's real progress.
+
+The graph must update when the user completes tasks, changes skill levels, or completes roadmap milestones.
+
+## 13. Dashboard Overview
+
+Create a high-quality overview page containing:
+- Welcome message with username
+- Selected dream career
+- Career readiness overview based on a clearly documented heuristic
+- Skill gap summary
+- Current roadmap milestone
+- Today's tasks
+- Weekly progress chart
+- Recommended next action
+- Quick links to Resume Analyzer and AI Career Coach
+
+All displayed metrics should derive from the app's state or be clearly labelled as sample data.
+
+## 14. Data Persistence and State Management
+
+Use localStorage to persist demo data, including:
+- Registered demo account metadata
+- Current session state
+- Selected career
+- Skill assessments
+- Roadmap progress
+- Daily planner tasks
+- Resume analysis results, only as needed and with a clear option to clear them
+- Timestamped improvement snapshots
+
+Use a consistent data structure and centralized state or reusable hooks.
+
+Handle missing, invalid, or outdated stored data gracefully. Provide a reset-demo-data option.
+
+Do not store plaintext passwords or unnecessary sensitive resume content.
+
+## 15. User Experience and Accessibility
+
+Meet these requirements:
+- Clear information architecture
+- Consistent navigation
+- Descriptive button labels
+- Accessible form labels and validation
+- Keyboard-friendly interactions
+- Visible focus indicators
+- Good color contrast
+- Responsive mobile navigation
+- Loading, success, error, and empty states
+- Confirmation for destructive actions
+- No broken links or inert buttons
+- Helpful onboarding for first-time users
+
+Use subtle animations only when they improve understanding. Respect reduced-motion preferences.
+
+## 16. Code Quality and Project Structure
+
+Organize the code into reusable components and feature-based folders.
+
+Suggested structure:
+
+src/
+  components/
+  layouts/
+  pages/
+  features/
+    auth/
+    careers/
+    skills/
+    roadmap/
+    planner/
+    resume/
+    analytics/
+    coach/
+  data/
+  hooks/
+  utils/
+  App.jsx
+  main.jsx
+  index.css
+
+Keep career data, skill requirements, roadmap templates, and recommendation logic separate from presentation components.
+
+Use reusable buttons, cards, dialogs, form fields, badges, and chart components.
+
+Ensure the app runs without a backend and without mandatory API keys.
+
+## 17. Deployment and Submission Readiness
+
+Prepare the application for:
+- Local development using Vite
+- GitHub source control
+- Vercel deployment
+- Responsive browser testing
+
+Include:
+- README with setup instructions
+- Dependency and run commands
+- Feature documentation
+- Architecture summary
+- Known limitations
+- Clear explanation of demo authentication and rule-based resume analysis
+- Vercel deployment instructions
+
+Ensure refreshes work on nested routes if routing is used. Do not include secrets or private data in the repository.
+
+## 18. Definition of Done
+
+Do not consider the project complete until:
+
+1. Registration and login work in the browser demo.
+2. The welcome message uses the registered username.
+3. Career search and selection work.
+4. Career selection updates the relevant skills and roadmap.
+5. Skill-gap analysis responds to user assessments.
+6. Roadmap tasks can be completed and persist.
+7. Daily planner CRUD operations work.
+8. Resume upload and browser-side text analysis work for supported files.
+9. Missing-skill recommendations depend on the selected career.
+10. Improvement graphs use actual recorded app data or clearly labelled demo data.
+11. The local demo career coach provides relevant responses.
+12. The app is responsive and accessible.
+13. No important button is decorative or nonfunctional.
+14. The app works without a backend or API key.
+15. The application builds successfully for Vercel deployment.
+
+## Final Instruction
+
+Build the actual application, not just a plan, screenshot, or static design.
+
+Prioritize correctness, usability, and a polished visual experience. Start by setting up the project, implement the complete user flow, then build each feature and test it.
+
+If the output environment supports file creation, create the complete source code. If working in an existing repository, inspect the current project first and integrate the implementation without unnecessarily deleting existing work.

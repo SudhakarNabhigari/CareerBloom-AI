@@ -1,6 +1,6 @@
-# [Project name]
+# CareerBloom AI
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A browser-based career readiness workspace that helps students explore roles, build skills, follow a roadmap, plan daily actions, analyze resumes locally, and track progress.
 
 ## Run & Operate
 
@@ -22,19 +22,21 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/career-bloom/` — CareerBloom AI frontend application
+- `README.md` — local setup, feature summary, limitations, and deployment notes
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Career readiness demo data and progress are browser-local; no backend or AI API is required.
+- Resume extraction and role matching are presented as local, rule-based demo analysis, not an ATS score or real AI result.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+Students can choose a target career, assess their skills, follow and complete roadmap milestones, plan tasks, review resume matches, chat with a local demo coach, and view progress derived from their activity.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Keep the CareerBloom AI interface simple, clean, and attractive.
 
 ## Gotchas
 
