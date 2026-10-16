@@ -1,0 +1,8 @@
+{
+  "buildCommand": "pnpm install && pnpm run build",
+  "outputDirectory": "artifacts/career-bloom/dist/public",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
+
