@@ -1,6 +1,6 @@
 ﻿import { useState } from "react";
 import {
-  Sparkles, Compass, Target, TrendingUp, LayoutDashboard,
+  Sparkles, Compass, Target, TrendingUp, LayoutDashboard, User, ShieldCheck, Download, Trash2, RotateCcw, HeartHandshake,
   Map, CalendarDays, Bell, Search,
   ArrowRight, CheckCircle2, Clock,
   BrainCircuit, ChevronRight,
@@ -40,6 +40,25 @@ const dailyStudyData = [
   { day: "Fri", Python: 2.5, DSA: 1.5, ML: 1, Math: 0.5 },
   { day: "Sat", Python: 2, DSA: 2, ML: 2, Math: 1 },
   { day: "Sun", Python: 1.5, DSA: 1, ML: 1.5, Math: 1 },
+];
+
+
+const assessmentQuestions = [
+  { skill: "Python", question: "Which Python data structure stores key-value pairs?", options: ["List", "Tuple", "Dictionary", "Set"], answer: 2, explanation: "A dictionary stores data as key-value pairs." },
+  { skill: "Python", question: "What does len(my_list) return?", options: ["The list's length", "The last item", "The list's type", "The largest item"], answer: 0, explanation: "len() returns the number of items in a collection." },
+  { skill: "Programming", question: "What is the main purpose of a function?", options: ["Store files", "Reuse a block of logic", "Increase screen size", "Create a database automatically"], answer: 1, explanation: "Functions package logic so it can be reused and tested." },
+  { skill: "DSA", question: "Which data structure follows LIFO order?", options: ["Queue", "Stack", "Graph", "Linked list"], answer: 1, explanation: "A stack follows Last In, First Out." },
+  { skill: "DSA", question: "Binary search works best on a collection that is?", options: ["Randomly shuffled", "Sorted", "Always empty", "Only text"], answer: 1, explanation: "Binary search repeatedly halves the search space in sorted data." },
+  { skill: "Mathematics", question: "What does the mean of a dataset represent?", options: ["The largest value", "The middle sorted value", "The sum divided by the count", "The most frequent value"], answer: 2, explanation: "The arithmetic mean is the sum of values divided by their count." },
+  { skill: "Machine Learning", question: "What is the purpose of a test dataset?", options: ["Train every model parameter", "Evaluate performance on unseen data", "Replace the training data", "Store API keys"], answer: 1, explanation: "A test set estimates how well a trained model generalizes." },
+  { skill: "Machine Learning", question: "What is overfitting?", options: ["A model learns training data too specifically", "A model has no parameters", "A dataset has no labels", "A model trains without data"], answer: 0, explanation: "An overfit model performs well on training data but poorly on unseen examples." },
+  { skill: "Deep Learning", question: "What is a neural network inspired by?", options: ["Relational tables", "Biological neural systems", "File compression", "Web browsers"], answer: 1, explanation: "Artificial neural networks loosely draw inspiration from biological neurons." },
+  { skill: "Generative AI", question: "What is an LLM primarily designed to do?", options: ["Generate and process language", "Replace all databases", "Guarantee factual answers", "Manage computer hardware"], answer: 0, explanation: "Large language models learn patterns in language and can generate text." },
+  { skill: "Generative AI", question: "What is an embedding?", options: ["A password", "A numerical representation of content", "A database backup", "A programming language"], answer: 1, explanation: "Embeddings represent content as vectors useful for similarity and retrieval." },
+  { skill: "RAG", question: "Why does a RAG system retrieve documents before answering?", options: ["To ground responses in relevant information", "To remove all model limitations", "To train a new model every time", "To avoid using any data"], answer: 0, explanation: "Retrieval provides relevant external context for the model's response." },
+  { skill: "RAG", question: "What is a vector database commonly used for?", options: ["Rendering CSS", "Similarity search over embeddings", "Editing source code", "Compressing videos"], answer: 1, explanation: "Vector databases support storing and searching vector representations." },
+  { skill: "Cloud", question: "What is the main benefit of deploying an application to the cloud?", options: ["It never needs maintenance", "It can be accessed and operated on remote infrastructure", "It removes all security risks", "It always costs nothing"], answer: 1, explanation: "Cloud infrastructure provides remote compute and services, with ongoing operational responsibilities." },
+  { skill: "Projects", question: "What is the best evidence that you can apply a technical skill?", options: ["A list of buzzwords", "A working project with documentation", "A copied screenshot", "An untested claim"], answer: 1, explanation: "A tested, documented project demonstrates practical application of skills." }
 ];
 
 const careerDetails: Record<string, {
@@ -116,11 +135,176 @@ function App() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [page, setPage] = useState("Overview");
+  const [settingsEmail, setSettingsEmail] = useState(localStorage.getItem("cb-settings-email") || "");
+  const [settingsGoal, setSettingsGoal] = useState(localStorage.getItem("cb-settings-goal") || "2");
+  const [settingsStyle, setSettingsStyle] = useState(localStorage.getItem("cb-settings-style") || "Mixed learning");
+  const [settingsDifficulty, setSettingsDifficulty] = useState(localStorage.getItem("cb-settings-difficulty") || "Balanced");
+  const [settingsWeekly, setSettingsWeekly] = useState(localStorage.getItem("cb-settings-weekly") || "5");
+  const [settingsStudyReminder, setSettingsStudyReminder] = useState(localStorage.getItem("cb-settings-study-reminder") !== "false");
+  const [settingsRoadmapReminder, setSettingsRoadmapReminder] = useState(localStorage.getItem("cb-settings-roadmap-reminder") !== "false");
+  const [settingsWeeklySummary, setSettingsWeeklySummary] = useState(localStorage.getItem("cb-settings-weekly-summary") !== "false");
+  const [settingsReminderTime, setSettingsReminderTime] = useState(localStorage.getItem("cb-settings-reminder-time") || "19:00");
+  const [settingsTheme, setSettingsTheme] = useState(localStorage.getItem("cb-settings-theme") || "dark");
+  const [settingsCompact, setSettingsCompact] = useState(localStorage.getItem("cb-settings-compact") === "true");
+  const [settingsReducedMotion, setSettingsReducedMotion] = useState(localStorage.getItem("cb-settings-reduced-motion") === "true");
+  const [settingsSaved, setSettingsSaved] = useState(false);
+
+  const saveSettings = () => {
+    const values: Record<string, string> = {
+      "cb-settings-email": settingsEmail,
+      "cb-settings-goal": settingsGoal,
+      "cb-settings-style": settingsStyle,
+      "cb-settings-difficulty": settingsDifficulty,
+      "cb-settings-weekly": settingsWeekly,
+      "cb-settings-study-reminder": String(settingsStudyReminder),
+      "cb-settings-roadmap-reminder": String(settingsRoadmapReminder),
+      "cb-settings-weekly-summary": String(settingsWeeklySummary),
+      "cb-settings-reminder-time": settingsReminderTime,
+      "cb-settings-theme": settingsTheme,
+      "cb-settings-compact": String(settingsCompact),
+      "cb-settings-reduced-motion": String(settingsReducedMotion)
+    };
+    Object.entries(values).forEach(([key, value]) => localStorage.setItem(key, value));
+    localStorage.setItem("cb-settings-preferences", "saved");
+    setSettingsSaved(true);
+    window.setTimeout(() => setSettingsSaved(false), 2500);
+  };
+
+  const exportCareerBloomData = () => {
+    const data: Record<string, string | null> = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith("cb-") && !key.startsWith("cb-password:")) {
+        data[key] = localStorage.getItem(key);
+      }
+    }
+    const blob = new Blob([JSON.stringify({
+      app: "CareerBloom AI",
+      exportedAt: new Date().toISOString(),
+      data
+    }, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "career-bloom-data.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const clearLearningHistory = () => {
+    if (!window.confirm("Clear learning history and saved analytics? Your login and selected career will be kept. Export your data first if needed.")) return;
+    const exactKeys = [
+      "cb-assessment-answers", "cb-assessment-finished",
+      "cb-assessment-history", "cb-roadmap-completed",
+      "cb-smart-planner-tasks", "cb-planner-history",
+      "cb-improvement-history", "cb-learning-history"
+    ];
+    exactKeys.forEach(key => localStorage.removeItem(key));
+    alert("Saved learning history cleared. Reload the page to refresh all sections.");
+  };
+
+  const resetLearningProgress = () => {
+    if (!window.confirm("Reset your learning progress? This clears assessment, roadmap and planner progress but keeps your profile, login and career goal.")) return;
+    const keysToReset = [
+      "cb-assessment-answers", "cb-assessment-finished",
+      "cb-assessment-history", "cb-roadmap-completed",
+      "cb-smart-planner-tasks", "cb-planner-history",
+      "cb-improvement-history", "cb-learning-history"
+    ];
+    keysToReset.forEach(key => localStorage.removeItem(key));
+    window.location.reload();
+  };
+
+  const requestStudyNotificationPermission = async () => {
+    if (!("Notification" in window)) {
+      alert("This browser does not support notifications.");
+      return;
+    }
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      new Notification("CareerBloom AI", {
+        body: "Notifications are enabled. Keep growing toward your dream career!"
+      });
+    } else {
+      alert("Notification permission was not granted. You can enable it in browser site settings.");
+    }
+  };
+  const [assessmentIndex, setAssessmentIndex] = useState(0);
+  const [assessmentAnswers, setAssessmentAnswers] = useState<Record<number, number>>(
+    JSON.parse(localStorage.getItem("cb-assessment-answers") || "{}")
+  );
+  const [assessmentReview, setAssessmentReview] = useState(false);
+  const [assessmentFinished, setAssessmentFinished] = useState(
+    localStorage.getItem("cb-assessment-finished") === "true"
+  );
+  const [assessmentHistory, setAssessmentHistory] = useState<any[]>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("cb-assessment-history") || "[]");
+      return Array.isArray(saved) ? saved : [];
+    } catch { return []; }
+  });
+  const [analyticsRange, setAnalyticsRange] = useState("30");
+  const [roadmapCompleted, setRoadmapCompleted] = useState<string[]>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("cb-roadmap-completed") || "[]");
+      return Array.isArray(saved) ? saved : [];
+    } catch { return []; }
+  });
+  const toggleRoadmapMilestone = (milestone: string) => {
+    const next = roadmapCompleted.includes(milestone)
+      ? roadmapCompleted.filter((item: string) => item !== milestone)
+      : [...roadmapCompleted, milestone];
+    setRoadmapCompleted(next);
+    localStorage.setItem("cb-roadmap-completed", JSON.stringify(next));
+  };
   const [search, setSearch] = useState("");
   const [career, setCareer] = useState(localStorage.getItem("cb-career") || "Generative AI Engineer");
   const [onboardingStep, setOnboardingStep] = useState<"welcome" | "career" | "done">(localStorage.getItem("cb-career") ? "done" : "career");
   const [careerSearch, setCareerSearch] = useState("");
   const [mobileMenu, setMobileMenu] = useState(false);
+  const plannerToday = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  };
+  const makeCareerTasks = (date: string, role: string) => {
+    const aiRole = /ai|machine learning|data scientist/i.test(role);
+    const learningTasks = aiRole
+      ? [
+          { title: "Practise Python fundamentals", category: "Programming", start: "06:00", duration: 45, priority: "High" },
+          { title: "Solve 2 DSA problems", category: "DSA", start: "06:45", duration: 45, priority: "High" },
+          { title: "Study ML / Generative AI concepts", category: "Career skills", start: "20:00", duration: 60, priority: "High" },
+          { title: "Build or improve a portfolio project", category: "Project", start: "21:00", duration: 60, priority: "Medium" },
+          { title: "Review notes and plan tomorrow", category: "Revision", start: "22:00", duration: 20, priority: "Low" }
+        ]
+      : [
+          { title: "Practise programming fundamentals", category: "Programming", start: "06:00", duration: 45, priority: "High" },
+          { title: "Solve 2 DSA problems", category: "DSA", start: "06:45", duration: 45, priority: "High" },
+          { title: "Learn a core career skill", category: "Career skills", start: "20:00", duration: 60, priority: "High" },
+          { title: "Build or improve a portfolio project", category: "Project", start: "21:00", duration: 60, priority: "Medium" },
+          { title: "Review notes and plan tomorrow", category: "Revision", start: "22:00", duration: 20, priority: "Low" }
+        ];
+    return learningTasks.map((task, index) => ({
+      ...task, id: `${date}-${index}-${role}`, date, done: false
+    }));
+  };
+  const [plannerDate, setPlannerDate] = useState(plannerToday);
+  const [plannerTasks, setPlannerTasks] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem("cb-smart-planner-tasks");
+      if (saved) return JSON.parse(saved);
+    } catch { /* Recover with a fresh plan if saved data is invalid. */ }
+    const date = plannerToday();
+    return makeCareerTasks(date, localStorage.getItem("cb-career") || "Generative AI Engineer");
+  });
+  const [plannerWeekStart, setPlannerWeekStart] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  });
+  const savePlannerTasks = (next: any[]) => {
+    setPlannerTasks(next);
+    localStorage.setItem("cb-smart-planner-tasks", JSON.stringify(next));
+  };
   const [tasks, setTasks] = useState([
     { name: "Practice 2 DSA problems", done: true },
     { name: "Learn Python decorators", done: true },
@@ -192,13 +376,13 @@ function App() {
             <div className="person"><div className="hair"/><div className="face"><span/><span/><i/></div><div className="body"/></div>
             <div className="laptop"><div className="screen"><i/><i/><i/></div><div className="base"/></div>
             <div className="float-card float-right"><CheckCircle2 size={18}/><div><b>Roadmap progress</b><small>One step at a time</small></div></div>
-            <div className="journey"><small>● YOUR JOURNEY</small><div className="journey-line"><span>01</span><span>02</span><span>03</span><span>04</span></div><div className="journey-labels"><small>Discover</small><small>Learn</small><small>Build</small><small>Launch</small></div></div>
+            <div className="journey"><small>Ã¢â€”Â YOUR JOURNEY</small><div className="journey-line"><span>01</span><span>02</span><span>03</span><span>04</span></div><div className="journey-labels"><small>Discover</small><small>Learn</small><small>Build</small><small>Launch</small></div></div>
           </div>
           <small className="footer-note">A private, browser-only workspace for your career journey.</small>
         </div>
       </section>
       <section className="auth-right">
-        <span className="float-symbol symbol-cap">🎓</span><span className="float-symbol symbol-book">📜</span><span className="float-symbol symbol-bag">💼</span>
+        <span className="float-symbol symbol-cap">Ã°Å¸Å½â€œ</span><span className="float-symbol symbol-book">Ã°Å¸â€œÅ“</span><span className="float-symbol symbol-bag">Ã°Å¸â€™Â¼</span>
         <form className="auth-card" onSubmit={login}>
           <div className="eyebrow">WELCOME {mode === "login" ? "BACK" : "ABOARD"}</div>
           <h2>{mode === "login" ? "Sign in to CareerBloom" : "Create your account"}</h2>
@@ -331,7 +515,7 @@ function App() {
   ];
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${settingsTheme === "light" ? "cb-light-theme" : ""} ${settingsCompact ? "cb-compact" : ""} ${settingsReducedMotion ? "cb-reduced-motion" : ""}`}>
       {mobileMenu && <button className="mobile-scrim" onClick={()=>setMobileMenu(false)} aria-label="Close menu"/>}
       <aside className={`sidebar ${mobileMenu?"sidebar-open":""}`}>
         <div className="brand side-brand"><span className="brand-icon"><Sparkles size={20}/></span> CareerBloom</div>
@@ -340,7 +524,7 @@ function App() {
         <div className="sidebar-bottom"><div className="upgrade-card"><div className="upgrade-icon"><Sparkles size={17}/></div><b>Your future is built daily.</b><p>Small steps. Real progress.</p><button onClick={()=>setPage("Daily Planner")}>View today's plan <ArrowRight size={14}/></button></div><div className="profile-row"><button className="profile" onClick={() => setPage("Profile")}><div className="avatar">{user.slice(0,1).toUpperCase()}</div><div className="profile-copy"><b>{user}</b><small>Career explorer</small></div></button><button className="logout-btn" type="button" title="Log out" aria-label="Log out" onClick={logout}><LogOut size={17}/></button></div></div>
       </aside>
       <main className="main">
-        <header className="topbar"><button className="mobile-menu-btn icon-btn" onClick={()=>setMobileMenu(!mobileMenu)}><Menu size={20}/></button><div className="breadcrumb">Workspace <ChevronRight size={14}/><b>{page}</b></div><div className="top-actions"><div className="search-box"><Search size={16}/><input placeholder="Search your workspace..." value={search} onChange={e=>setSearch(e.target.value)}/><kbd>⌘ K</kbd></div><button className="icon-btn" title="Notifications"><Bell size={18}/><span className="notification-dot"/></button></div></header>
+        <header className="topbar"><button className="mobile-menu-btn icon-btn" onClick={()=>setMobileMenu(!mobileMenu)}><Menu size={20}/></button><div className="breadcrumb">Workspace <ChevronRight size={14}/><b>{page}</b></div><div className="top-actions"><div className="search-box"><Search size={16}/><input placeholder="Search your workspace..." value={search} onChange={e=>setSearch(e.target.value)}/><kbd>Ã¢Å’Ëœ K</kbd></div><button className="icon-btn" title="Notifications"><Bell size={18}/><span className="notification-dot"/></button></div></header>
         {page==="Overview" ? <div className="content">
           <section className="overview-analytics">
             <div className="analytics-heading">
@@ -431,7 +615,7 @@ function App() {
             </div>
           </section>
         </div> : <div className="content inner-page"><div className="eyebrow"><Sparkles size={13}/> CAREERBLOOM WORKSPACE</div><h1>{page}</h1><p className="inner-intro">Make your next career move with clarity and confidence.</p>
-          {page==="Dream Career"&&<section className="panel inner-panel"><h3>Choose your dream career</h3><p>Search for a role and set your career goal.</p><div className="career-search"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search careers, e.g. AI Engineer"/></div><div className="career-options">{["Generative AI Engineer","Machine Learning Engineer","Software Engineer","Data Scientist","Cloud AI Engineer","AI Researcher"].filter(c=>c.toLowerCase().includes(search.toLowerCase())).map(c=><button key={c} className={`career-option ${career===c?"selected":""}`} onClick={()=>{setCareer(c);localStorage.setItem("cb-career",c)}}><span className="feature-icon"><BrainCircuit size={18}/></span><span><b>{c}</b><small>Explore skills and learning paths</small></span>{career===c?<CheckCircle2 size={19}/>:<ChevronRight size={18}/>}</button>)}</div><button className="primary-btn" onClick={()=>setPage("Learning Roadmap")}>Build my roadmap <ArrowRight size={16}/></button></section>
+          {page==="Dream Career"&&<section className="panel inner-panel"><h3>Choose your dream career</h3><p>Search for a role and set your career goal.</p><div className="career-search"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search careers, e.g. AI Engineer"/></div><div className="career-options">{["Generative AI Engineer","Machine Learning Engineer","Software Engineer","Data Scientist","Cloud AI Engineer","AI Researcher"].filter(c=>c.toLowerCase().includes(search.toLowerCase())).map(c=><button key={c} className={`career-option ${career===c?"selected":""}`} onClick={()=>{setCareer(c);localStorage.setItem("cb-career",c)}}><span className="feature-icon"><BrainCircuit size={18}/></span><span><b>{c}</b><small>Explore skills and learning paths</small></span>{career===c?<CheckCircle2 size={19}/>:<ChevronRight size={18}/>}</button>)}</div><button className="primary-btn" onClick={()=>setPage("My Roadmap")}>Build my roadmap <ArrowRight size={16}/></button></section>
 }{page==="Dream Career"&&<section className="panel inner-panel dream-career-details">
   <div className="eyebrow"><BrainCircuit size={14}/> YOUR SELECTED DREAM CAREER</div>
   <h2>{career || "Choose a career"}</h2>
@@ -451,8 +635,102 @@ function App() {
   <ul>{getCareerDetails(career).projects.map(item=><li key={item}>{item}</li>)}</ul>
   <div className="dream-career-tip"><b>Career tip</b><p>{getCareerDetails(career).tip}</p></div>
 </section>}
-          {page==="Skill Gap Analyzer"&&<section className="panel inner-panel"><h3>Your current skill profile</h3><p>Use these starter estimates to identify what to focus on next.</p>{skills.map(s=><div className="gap-row" key={s.name}><div><b>{s.name}</b><span>{s.value}%</span></div><div className="skill-bar"><span style={{width:s.value+"%",background:s.color}}/></div><small>{s.value<50?"Priority: practice and build a project":"Keep practising and demonstrate your skills"}</small></div>)}<button className="primary-btn" onClick={()=>setPage("Learning Roadmap")}>View learning roadmap <ArrowRight size={16}/></button></section>}
-          {page==="Learning Roadmap"&&<section className="panel inner-panel career-roadmap">
+          {page.trim().startsWith("Skill Assessment")&&<section className="assessment-page">
+  <div className="assessment-hero">
+    <div>
+      <span className="eyebrow"><Target size={14}/> CAREER READINESS CHECK</span>
+      <h2>Skill Assessment</h2>
+      <p>Test your knowledge, discover strengths, and find what to learn next.</p>
+    </div>
+    <div className="assessment-career"><span>YOUR DREAM CAREER</span><b>{career || "Choose a career"}</b></div>
+  </div>
+  <div className="assessment-layout">
+    <section className="panel assessment-main">
+      {!assessmentFinished ? <>
+        <div className="assessment-topline"><span>QUESTION {assessmentIndex + 1} OF {assessmentQuestions.length}</span><span>{Math.round((Object.keys(assessmentAnswers).length / assessmentQuestions.length) * 100)}% answered</span></div>
+        <div className="assessment-progress"><span style={{width: (((assessmentIndex + 1) / assessmentQuestions.length) * 100) + "%"}} /></div>
+        <div className="assessment-skill-label">{assessmentQuestions[assessmentIndex].skill}</div>
+        <h3>{assessmentQuestions[assessmentIndex].question}</h3>
+        <p className="assessment-muted">Choose the best answer below.</p>
+        <div className="assessment-options">
+          {assessmentQuestions[assessmentIndex].options.map((option, index) => <button key={option} className={"assessment-option " + (assessmentAnswers[assessmentIndex] === index ? "chosen" : "")} onClick={() => { const next = {...assessmentAnswers, [assessmentIndex]: index}; setAssessmentAnswers(next); localStorage.setItem("cb-assessment-answers", JSON.stringify(next)); }}>
+            <span className="assessment-letter">{String.fromCharCode(65 + index)}</span><span>{option}</span>{assessmentAnswers[assessmentIndex] === index && <CheckCircle2 size={18}/>}
+          </button>)}
+        </div>
+        {assessmentAnswers[assessmentIndex] !== undefined && <div className="assessment-feedback"><b>Answer saved</b><span>You can change it before submitting your assessment.</span></div>}
+        <div className="assessment-controls">
+          <button className="assessment-secondary" disabled={assessmentIndex === 0} onClick={() => setAssessmentIndex(i => Math.max(0, i - 1))}>Previous</button>
+          {assessmentIndex < assessmentQuestions.length - 1
+            ? <button className="primary-btn" onClick={() => setAssessmentIndex(i => Math.min(assessmentQuestions.length - 1, i + 1))}>Next question <ArrowRight size={16}/></button>
+            : <button className="primary-btn" disabled={Object.keys(assessmentAnswers).length !== assessmentQuestions.length} onClick={() => { const correctCount = assessmentQuestions.reduce((count, q, index) =>
+                count + (assessmentAnswers[index] === q.answer ? 1 : 0), 0);
+              const breakdown = Array.from(new Set(assessmentQuestions.map(q => q.skill))).map(skill => {
+                const questions = assessmentQuestions.filter(q => q.skill === skill);
+                const correct = questions.filter(q => assessmentAnswers[assessmentQuestions.indexOf(q)] === q.answer).length;
+                return { skill, score: Math.round(correct / questions.length * 100), correct, total: questions.length };
+              });
+              const attempt = {
+                id: `${Date.now()}`,
+                date: new Date().toISOString(),
+                career,
+                score: Math.round(correctCount / assessmentQuestions.length * 100),
+                correct: correctCount,
+                total: assessmentQuestions.length,
+                breakdown
+              };
+              const history = [...assessmentHistory, attempt];
+              setAssessmentHistory(history);
+              localStorage.setItem("cb-assessment-history", JSON.stringify(history));
+              setAssessmentFinished(true);
+              localStorage.setItem("cb-assessment-finished", "true"); }}>Submit assessment <CheckCircle2 size={16}/></button>}
+        </div>
+      </> : <>
+        <span className="eyebrow"><CheckCircle2 size={14}/> ASSESSMENT COMPLETE</span>
+        <h2>Your results</h2>
+        <div className="assessment-score">{Math.round(assessmentQuestions.reduce((sum, q, i) => sum + (assessmentAnswers[i] === q.answer ? 1 : 0), 0) / assessmentQuestions.length * 100)}<small>%</small></div>
+        <p className="assessment-muted">Score based on your submitted answers. Review each skill below to plan your next steps.</p>
+        <div className="assessment-result-list">{Array.from(new Set(assessmentQuestions.map(q => q.skill))).map(skill => { const ids = assessmentQuestions.map((q, i) => ({q, i})).filter(x => x.q.skill === skill); const correct = ids.filter(x => assessmentAnswers[x.i] === x.q.answer).length; const pct = Math.round(correct / ids.length * 100); return <div className="assessment-result-row" key={skill}><div><b>{skill}</b><span>{correct}/{ids.length} correct</span></div><div className="skill-bar"><span style={{width: pct + "%"}} /></div></div>; })}</div>
+        <div className="assessment-feedback"><b>Recommended next step</b><span>{assessmentQuestions.filter((q, i) => assessmentAnswers[i] !== q.answer).length ? "Focus first on the skills with lower scores and practise them through small projects." : "Great result! Reinforce your knowledge with projects and practical exercises."}</span></div>
+        <div className="assessment-review-heading">
+          <h3>Answer review</h3>
+          <button className="assessment-secondary" onClick={() => setAssessmentReview(v => !v)}>
+            {assessmentReview ? "Hide answers" : "Review all answers"}
+          </button>
+        </div>
+        {assessmentReview && <div className="assessment-review-list">
+          {assessmentQuestions.map((q, i) => {
+            const selected = assessmentAnswers[i];
+            const correct = selected === q.answer;
+            return <article key={i} className={"assessment-review-item " + (correct ? "review-correct" : "review-incorrect")}>
+              <div className="assessment-review-top">
+                <span>Question {i + 1} Ã‚Â· {q.skill}</span>
+                <b>{correct ? "Correct" : "Incorrect"}</b>
+              </div>
+              <h4>{q.question}</h4>
+              <p><strong>Your answer:</strong> {q.options[selected] ?? "Not answered"}</p>
+              {!correct && <p><strong>Correct answer:</strong> {q.options[q.answer]}</p>}
+              <p className="assessment-explanation"><strong>Explanation:</strong> {q.explanation}</p>
+            </article>;
+          })}
+        </div>}
+        <div className="assessment-controls"><button className="assessment-secondary" onClick={() => { setAssessmentFinished(false); setAssessmentIndex(0); setAssessmentAnswers({}); localStorage.removeItem("cb-assessment-answers"); localStorage.removeItem("cb-assessment-finished"); }}>Retake quiz</button><button className="primary-btn" onClick={() => setPage("My Roadmap")}>Go to My Roadmap <ArrowRight size={16}/></button></div>
+      </>}
+    </section>
+    <aside className="panel assessment-side">
+      <span className="eyebrow">ASSESSMENT GUIDE</span><h3>Your progress</h3>
+      <div className="assessment-side-stat"><b>{Object.keys(assessmentAnswers).length}</b><span>of {assessmentQuestions.length} answered</span></div>
+      <div className="assessment-progress"><span style={{width: (Object.keys(assessmentAnswers).length / assessmentQuestions.length * 100) + "%"}} /></div>
+      <p className="assessment-muted">Answer every question before submitting. Your score is calculated from correct answers.</p>
+      <div className="assessment-side-tip"><BrainCircuit size={18}/><div><b>Tip</b><p>Read every option carefully. You can revisit questions before submitting.</p></div></div>
+      <h3>Skills covered</h3>
+      <div className="assessment-skill-tags">{Array.from(new Set(assessmentQuestions.map(q => q.skill))).map(skill => <span key={skill}>{skill}</span>)}</div>
+      <button className="assessment-secondary assessment-full" onClick={() => setPage("Dream Career")}>Review Dream Career <ChevronRight size={16}/></button>
+    </aside>
+  </div>
+</section>}
+
+{page==="Skill Gap Analyzer"&&<section className="panel inner-panel"><h3>Your current skill profile</h3><p>Use these starter estimates to identify what to focus on next.</p>{skills.map(s=><div className="gap-row" key={s.name}><div><b>{s.name}</b><span>{s.value}%</span></div><div className="skill-bar"><span style={{width:s.value+"%",background:s.color}}/></div><small>{s.value<50?"Priority: practice and build a project":"Keep practising and demonstrate your skills"}</small></div>)}<button className="primary-btn" onClick={()=>setPage("My Roadmap")}>View learning roadmap <ArrowRight size={16}/></button></section>}
+          {page==="My Roadmap"&&<section className="panel inner-panel career-roadmap">
   <div className="eyebrow"><Sparkles size={14}/> PERSONALIZED CAREER PLAN</div>
   <h2>My Roadmap to {career || "Your Dream Career"}</h2>
   <p>Follow these milestones in order. Each stage builds skills needed for your selected career.</p>
@@ -499,14 +777,253 @@ function App() {
       <p>{m[2]}</p>
       <small><strong>Milestone:</strong> {m[3]}</small>
     </div>
-    <span className="milestone-status">{i===0?"Start here":"Upcoming"}</span>
+    <button type="button"
+      className={"milestone-status roadmap-toggle " + (roadmapCompleted.includes(`${career}:${m[0]}`) ? "roadmap-toggle-done" : "")}
+      aria-pressed={roadmapCompleted.includes(`${career}:${m[0]}`)}
+      onClick={() => toggleRoadmapMilestone(`${career}:${m[0]}`)}>
+      {roadmapCompleted.includes(`${career}:${m[0]}`) ? "âœ“ Completed" : "Mark complete"}
+    </button>
   </div>)}
   <div className="dream-career-tip">
     <b>Your next action</b>
     <p>Start with Stage 01. Practise consistently, save your work on GitHub, and move forward when you can demonstrate the skills through a project.</p>
   </div>
 </section>}
-          {page==="Daily Planner"&&<section className="panel inner-panel"><div className="panel-heading"><div><h3>Today's action plan</h3><p>Check off each step as you finish it.</p></div><span className="stat-icon purple"><Zap size={18}/></span></div>{tasks.map((t,i)=><label className={`task planner-task ${t.done?"task-done":""}`} key={t.name}><input type="checkbox" checked={t.done} onChange={()=>setTasks(prev=>prev.map((x,j)=>j===i?{...x,done:!x.done}:x))}/><span className="fake-check">{t.done&&<CheckCircle2 size={16}/>}</span><span>{t.name}</span><span className="task-time"><Clock size={14}/> {i+1} hr</span></label>)}<div className="planner-summary"><CheckCircle2 size={19}/>{tasks.filter(t=>t.done).length} of {tasks.length} tasks completed. Keep going!</div></section>}
+          {page==="Daily Planner"&&<section className="smart-planner">
+            <div className="planner-hero">
+              <div>
+                <span className="eyebrow"><CalendarDays size={14}/> CAREER-BASED DAILY PLAN</span>
+                <h2>Your learning, one day at a time.</h2>
+                <p>Personalised starter tasks for {career || "your chosen career"}. Tick tasks off to track your progress.</p>
+              </div>
+              <button className="primary-btn" onClick={() => {
+                const next = makeCareerTasks(plannerDate, career || "Generative AI Engineer");
+                savePlannerTasks([...plannerTasks.filter((t:any) => t.date !== plannerDate), ...next]);
+              }}><Zap size={16}/> Regenerate day</button>
+            </div>
+            <div className="planner-stats">
+              <div className="planner-stat"><span>Today's tasks</span><b>{plannerTasks.filter((t:any)=>t.date===plannerDate).length}</b></div>
+              <div className="planner-stat"><span>Completed</span><b>{plannerTasks.filter((t:any)=>t.date===plannerDate&&t.done).length}</b></div>
+              <div className="planner-stat"><span>Study time</span><b>{Math.round(plannerTasks.filter((t:any)=>t.date===plannerDate&&t.done).reduce((n:number,t:any)=>n+t.duration,0)/60*10)/10}h</b></div>
+              <div className="planner-stat"><span>Daily progress</span><b>{Math.round((plannerTasks.filter((t:any)=>t.date===plannerDate).length ? plannerTasks.filter((t:any)=>t.date===plannerDate&&t.done).length/plannerTasks.filter((t:any)=>t.date===plannerDate).length : 0)*100)}%</b></div>
+            </div>
+            <div className="planner-progress-track"><span style={{width:(plannerTasks.filter((t:any)=>t.date===plannerDate).length ? plannerTasks.filter((t:any)=>t.date===plannerDate&&t.done).length/plannerTasks.filter((t:any)=>t.date===plannerDate).length*100 : 0)+"%"}}/></div>
+            <div className="planner-columns">
+              <section className="panel planner-timeline">
+                <div className="panel-heading"><div><h3>Daily timeline</h3><p>{new Date(plannerDate+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"})}</p></div><input aria-label="Choose planner date" type="date" value={plannerDate} onChange={e=>setPlannerDate(e.target.value)}/></div>
+                {plannerTasks.filter((t:any)=>t.date===plannerDate).sort((a:any,b:any)=>a.start.localeCompare(b.start)).map((t:any)=><article className={"smart-task "+(t.done?"smart-task-done":"")} key={t.id}>
+                  <div className="smart-task-time">{t.start}<small>{t.duration} min</small></div>
+                  <button className="smart-task-check" aria-label={t.done?"Mark incomplete":"Mark complete"} onClick={() => savePlannerTasks(plannerTasks.map((x:any)=>x.id===t.id?{...x,done:!x.done}:x))}>{t.done?"âœ“":""}</button>
+                  <div className="smart-task-copy"><b>{t.title}</b><span>{t.category}</span><small className={"priority-"+t.priority.toLowerCase()}>{t.priority} priority</small></div>
+                </article>)}
+                {!plannerTasks.some((t:any)=>t.date===plannerDate)&&<div className="planner-empty">No tasks for this date. Choose â€œRegenerate dayâ€ to create a career-focused plan.</div>}
+                <button className="assessment-secondary planner-add" onClick={() => {
+                  const title = window.prompt("Enter a learning task:");
+                  if (!title?.trim()) return;
+                  const newTask = {id:`${Date.now()}`,date:plannerDate,title:title.trim(),category:"Personal goal",start:"22:20",duration:30,priority:"Medium",done:false};
+                  savePlannerTasks([...plannerTasks,newTask]);
+                }}>+ Add a personal task</button>
+              </section>
+              <section className="panel planner-week">
+                <div className="panel-heading"><div><h3>Weekly calendar</h3><p>Your Mondayâ€“Sunday learning rhythm</p></div></div>
+                <div className="planner-week-grid">{Array.from({length:7},(_,i)=>{
+                  const d=new Date(plannerWeekStart+"T12:00:00");
+                  d.setDate(d.getDate()+i);
+                  const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+                  const dayTasks=plannerTasks.filter((t:any)=>t.date===key);
+                  const complete=dayTasks.filter((t:any)=>t.done).length;
+                  return <button key={key} className={"planner-day "+(key===plannerDate?"planner-day-active":"")} onClick={()=>setPlannerDate(key)}>
+                    <span>{d.toLocaleDateString("en-IN",{weekday:"short"})}</span><b>{d.getDate()}</b><small>{complete}/{dayTasks.length} done</small><i><span style={{width:(dayTasks.length?complete/dayTasks.length*100:0)+"%"}}/></i>
+                  </button>;
+                })}</div>
+                <div className="planner-week-controls"><button className="assessment-secondary" onClick={()=>{
+                  const d=new Date(plannerWeekStart+"T12:00:00");d.setDate(d.getDate()-7);
+                  setPlannerWeekStart(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`);
+                }}>â† Previous week</button><button className="assessment-secondary" onClick={()=>{
+                  const d=new Date(plannerWeekStart+"T12:00:00");d.setDate(d.getDate()+7);
+                  setPlannerWeekStart(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`);
+                }}>Next week â†’</button></div>
+                <div className="planner-week-summary"><Sparkles size={17}/><span><b>Career focus</b><small>Tasks are starter suggestions based on your selected career. They are saved in this browser.</small></span></div>
+              </section>
+            </div>
+          </section>}
+          {page==="Improvement Analytics"&&(() => {
+            const now = new Date();
+            const cutoff = analyticsRange === "all" ? null : new Date(now.getTime() - Number(analyticsRange) * 86400000);
+            const history = assessmentHistory
+              .filter((item: any) => item && item.date && Number.isFinite(Number(item.score)))
+              .filter((item: any) => !cutoff || new Date(item.date) >= cutoff)
+              .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            const latest = history.length ? history[history.length - 1] : null;
+            const previous = history.length > 1 ? history[history.length - 2] : null;
+            const scoreChange = latest && previous ? Number(latest.score) - Number(previous.score) : null;
+            const tasks = (() => {
+              try {
+                const saved = JSON.parse(localStorage.getItem("cb-smart-planner-tasks") || "[]");
+                return Array.isArray(saved) ? saved : [];
+              } catch { return []; }
+            })();
+            const relevantTasks = tasks.filter((task: any) => task && task.date && (!cutoff || new Date(task.date + "T23:59:59") >= cutoff));
+            const doneTasks = relevantTasks.filter((task: any) => task.done);
+            const taskRate = relevantTasks.length ? Math.round(doneTasks.length / relevantTasks.length * 100) : 0;
+            const roadmapTotal = 5;
+            const completedForCareer = roadmapCompleted.filter((item: string) => item.startsWith(`${career}:`)).length;
+            const roadmapRate = Math.round(completedForCareer / roadmapTotal * 100);
+            const lastAttemptBreakdown = latest && Array.isArray(latest.breakdown) ? latest.breakdown : [];
+            const skillChart = lastAttemptBreakdown.map((item: any) => ({
+              name: item.skill, current: Number(item.score), target: 80
+            }));
+            const dailyActivity = Array.from({length: 28}, (_, index) => {
+              const date = new Date(now);
+              date.setDate(now.getDate() - (27 - index));
+              const key = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+              const dayTasks = tasks.filter((task: any) => task.date === key);
+              return {
+                date: key,
+                label: date.toLocaleDateString("en-IN", {day:"numeric",month:"short"}),
+                completed: dayTasks.filter((task: any) => task.done).length,
+                total: dayTasks.length
+              };
+            });
+            const completedDays = dailyActivity.filter(day => day.completed > 0).length;
+            const studyMinutes = doneTasks.reduce((sum: number, task: any) => sum + (Number(task.duration) || 0), 0);
+            const trend = history.map((item: any, index: number) => ({
+              attempt: `Attempt ${index + 1}`,
+              score: Number(item.score),
+              date: new Date(item.date).toLocaleDateString("en-IN", {day:"numeric",month:"short"})
+            }));
+            const insights: string[] = [];
+            if (!latest) insights.push("Complete and submit your Skill Assessment to establish your first measured baseline.");
+            else if (!previous) insights.push("Your baseline is saved. Retake the assessment after practising to measure actual improvement.");
+            else if (scoreChange! > 0) insights.push(`Your latest assessment improved by ${scoreChange} percentage points compared with the previous attempt.`);
+            else if (scoreChange! < 0) insights.push(`Your latest score changed by ${scoreChange} points. Review incorrect answers and practise those topics.`);
+            else insights.push("Your last two assessment scores are unchanged. Focus on missed questions before your next attempt.");
+            if (relevantTasks.length === 0) insights.push("Add tasks in Daily Planner and mark them complete to build your real learning activity history.");
+            else if (taskRate < 60) insights.push(`Planner completion is ${taskRate}%. Try finishing one high-priority task before adding more.`);
+            else insights.push(`You completed ${doneTasks.length} of ${relevantTasks.length} saved planner tasks in this period.`);
+            if (skillChart.some((skill: any) => skill.current < 60)) {
+              const weakest = [...skillChart].sort((a: any,b: any) => a.current-b.current)[0];
+              insights.push(`${weakest.name} is your lowest assessed skill at ${weakest.current}%. Review its incorrect answers and build a small practice project.`);
+            }
+            if (completedForCareer < roadmapTotal) insights.push(`Roadmap: ${completedForCareer} of ${roadmapTotal} milestones marked complete. Finish the next milestone for ${career}.`);
+            return <section className="improvement-page">
+              <div className="improvement-hero">
+                <div>
+                  <span className="eyebrow"><TrendingUp size={14}/> MEASURED PROGRESS</span>
+                  <h2>Your progress, backed by your work.</h2>
+                  <p>Assessment attempts, saved learning tasks and roadmap milestones. No generated scores.</p>
+                </div>
+                <label className="analytics-filter">Date range
+                  <select value={analyticsRange} onChange={e=>setAnalyticsRange(e.target.value)}>
+                    <option value="7">Last 7 days</option>
+                    <option value="30">Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                    <option value="all">All time</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="improvement-stats">
+                <article className="improvement-stat"><span>Latest assessment</span><b>{latest ? `${latest.score}%` : "â€”"}</b><small>{latest ? new Date(latest.date).toLocaleDateString("en-IN") : "No saved attempt"}</small></article>
+                <article className="improvement-stat"><span>Change vs previous</span><b className={scoreChange === null ? "" : scoreChange >= 0 ? "analytics-positive" : "analytics-negative"}>{scoreChange === null ? "â€”" : `${scoreChange > 0 ? "+" : ""}${scoreChange} pts`}</b><small>{previous ? "Compared with previous attempt" : "Requires two attempts"}</small></article>
+                <article className="improvement-stat"><span>Planner completion</span><b>{relevantTasks.length ? `${taskRate}%` : "â€”"}</b><small>{doneTasks.length} of {relevantTasks.length} saved tasks</small></article>
+                <article className="improvement-stat"><span>Roadmap progress</span><b>{roadmapRate}%</b><small>{completedForCareer} of {roadmapTotal} milestones</small></article>
+              </div>
+
+              <div className="improvement-chart-grid">
+                <article className="panel improvement-card">
+                  <div className="improvement-card-heading"><div><h3>Assessment trend</h3><p>Scores from submitted attempts in the selected period</p></div><span className="chart-legend-dot"/></div>
+                  {trend.length > 0 ? <div className="improvement-chart"><ResponsiveContainer width="100%" height={260}><AreaChart data={trend} margin={{top:12,right:12,left:-18,bottom:4}}><defs><linearGradient id="assessmentFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8b6cff" stopOpacity={0.4}/><stop offset="95%" stopColor="#8b6cff" stopOpacity={0.02}/></linearGradient></defs><CartesianGrid stroke="#28324a" strokeDasharray="3 3"/><XAxis dataKey="attempt" tick={{fill:"#9caed0",fontSize:11}}/><YAxis domain={[0,100]} tick={{fill:"#9caed0",fontSize:11}}/><Tooltip contentStyle={{background:"#11182b",border:"1px solid #393253",borderRadius:10,color:"#fff"}} formatter={(value: any)=>[`${value}%`,"Score"]}/><Area type="monotone" dataKey="score" stroke="#a78bfa" strokeWidth={3} fill="url(#assessmentFill)" connectNulls={false}/></AreaChart></ResponsiveContainer></div> : <div className="analytics-empty"><TrendingUp size={25}/><b>Your score trend starts here</b><span>Submit your assessment. Take it again later to compare real attempts.</span><button className="primary-btn" onClick={()=>setPage("Skill Assessment")}>Take assessment <ArrowRight size={15}/></button></div>}
+                </article>
+
+                <article className="panel improvement-card">
+                  <div className="improvement-card-heading"><div><h3>Skill vs target</h3><p>Latest assessment results compared with an 80% learning target</p></div></div>
+                  {skillChart.length > 0 ? <div className="improvement-chart"><ResponsiveContainer width="100%" height={260}><BarChart data={skillChart} layout="vertical" margin={{top:6,right:18,left:8,bottom:4}}><CartesianGrid stroke="#28324a" strokeDasharray="3 3"/><XAxis type="number" domain={[0,100]} tick={{fill:"#9caed0",fontSize:10}}/><YAxis type="category" dataKey="name" width={100} tick={{fill:"#c5cee3",fontSize:10}}/><Tooltip contentStyle={{background:"#11182b",border:"1px solid #393253",borderRadius:10,color:"#fff"}} formatter={(value: any)=>[`${value}%`]}/><Bar dataKey="current" name="Assessed" fill="#8b6cff" radius={[0,5,5,0]}/><Bar dataKey="target" name="Target" fill="#45d6b0" radius={[0,5,5,0]}/></BarChart></ResponsiveContainer></div> : <div className="analytics-empty"><Target size={25}/><b>No assessed skill scores yet</b><span>Skill comparison appears after a saved assessment.</span><button className="primary-btn" onClick={()=>setPage("Skill Assessment")}>Assess skills <ArrowRight size={15}/></button></div>}
+                </article>
+
+                <article className="panel improvement-card">
+                  <div className="improvement-card-heading"><div><h3>28-day learning activity</h3><p>Completed tasks by calendar day, from planner history</p></div></div>
+                  <div className="activity-heatmap">{dailyActivity.map(day=><div key={day.date} className="activity-day-wrap" title={`${day.date}: ${day.completed}/${day.total} completed`}><span className={"activity-cell "+(day.completed===0?"activity-level-0":day.completed/day.total<0.34?"activity-level-1":day.completed/day.total<0.75?"activity-level-2":"activity-level-3")}/></div>)}</div>
+                  <div className="activity-legend"><span>Less</span><i className="activity-level-0"/><i className="activity-level-1"/><i className="activity-level-2"/><i className="activity-level-3"/><span>More</span></div>
+                  <div className="activity-summary"><div><b>{completedDays}</b><span>Active days</span></div><div><b>{Math.round(studyMinutes/60*10)/10}h</b><span>Completed-task time in range</span></div><div><b>{doneTasks.length}</b><span>Tasks completed</span></div></div>
+                  {!tasks.length && <p className="analytics-note">No planner history yet. Create tasks and mark them complete in Daily Planner.</p>}
+                </article>
+
+                <article className="panel improvement-card">
+                  <div className="improvement-card-heading"><div><h3>Career roadmap</h3><p>{career} milestone completion</p></div></div>
+                  <div className="roadmap-progress-visual"><div className="roadmap-ring" style={{background:`conic-gradient(#45d6b0 ${roadmapRate*3.6}deg,#273047 0deg)`}}><div><b>{roadmapRate}%</b><span>complete</span></div></div><div className="roadmap-progress-copy"><b>{completedForCareer} / {roadmapTotal} milestones</b><span>Mark milestones complete on My Roadmap. Progress is stored in this browser.</span><button className="assessment-secondary" onClick={()=>setPage("My Roadmap")}>Open roadmap <ArrowRight size={14}/></button></div></div>
+                  <div className="roadmap-mini-list">{["01","02","03","04","05"].map((id,index)=>{const done=roadmapCompleted.includes(`${career}:${id}`);return <div key={id}><span className={done?"roadmap-mini-done":""}>{done?"âœ“":id}</span><b>{["Foundations","Core skills","Applied project","Deployment","Career preparation"][index]}</b><small>{done?"Completed":"Not marked complete"}</small></div>})}</div>
+                </article>
+              </div>
+
+              <article className="panel improvement-insights">
+                <div className="improvement-card-heading"><div><h3><Sparkles size={17}/> Your next best actions</h3><p>Recommendations generated from your saved records</p></div></div>
+                {insights.map((insight,index)=><div className="insight-row" key={index}><span>{index+1}</span><p>{insight}</p></div>)}
+                <div className="improvement-actions"><button className="assessment-secondary" onClick={()=>setPage("Daily Planner")}>Open Daily Planner <ArrowRight size={14}/></button><button className="assessment-secondary" onClick={()=>setPage("Skill Assessment")}>Review assessment <ArrowRight size={14}/></button><button className="assessment-secondary" onClick={()=>setPage("My Roadmap")}>Continue roadmap <ArrowRight size={14}/></button></div>
+              </article>
+              <p className="analytics-disclaimer">Skill targets are learning goals, not measured ability. Only submitted assessments and saved planner or roadmap activity contribute to progress metrics. Historical records begin when this tracking is enabled.</p>
+            </section>;
+          })()}
+          {page==="Settings"&&<section className="cb-settings-page">
+            <div className="cb-settings-hero">
+              <div><span className="eyebrow">MAKE IT YOURS</span><h2>Settings & Preferences</h2><p>Personalize your learning space and keep your career journey organized.</p></div>
+              <span className="cb-settings-mark"><Settings size={25}/></span>
+            </div>
+
+            <section className="panel cb-settings-card">
+              <div className="cb-settings-heading"><span className="cb-settings-icon"><User size={19}/></span><div><h3>Account & Profile</h3><p>Manage your profile details.</p></div></div>
+              <div className="cb-settings-grid">
+                <label className="cb-field">Display name<input value={user} onChange={e=>setUser(e.target.value)} placeholder="Your name"/></label>
+                <label className="cb-field">Email address<input type="email" value={settingsEmail} onChange={e=>setSettingsEmail(e.target.value)} placeholder="you@example.com"/></label>
+                <label className="cb-field">Dream career<input value={career} readOnly/><small>Change this in the Dream Career section.</small></label>
+              </div>
+              <button className="primary-btn" onClick={()=>{const clean=user.trim();if(!clean){alert("Please enter a display name.");return;}localStorage.setItem("cb-user",clean);setUser(clean);saveSettings();}}>Save profile</button>
+            </section>
+
+            <section className="panel cb-settings-card">
+              <div className="cb-settings-heading"><span className="cb-settings-icon"><Target size={19}/></span><div><h3>Learning Preferences</h3><p>Set realistic goals for your study routine.</p></div></div>
+              <div className="cb-settings-grid">
+                <label className="cb-field">Daily study goal<select value={settingsGoal} onChange={e=>setSettingsGoal(e.target.value)}><option value="1">1 hour per day</option><option value="2">2 hours per day</option><option value="3">3 hours per day</option><option value="4">4 hours per day</option><option value="6">6 hours per day</option></select></label>
+                <label className="cb-field">Learning style<select value={settingsStyle} onChange={e=>setSettingsStyle(e.target.value)}><option>Mixed learning</option><option>Videos</option><option>Reading</option><option>Hands-on projects</option><option>Practice questions</option></select></label>
+                <label className="cb-field">Difficulty preference<select value={settingsDifficulty} onChange={e=>setSettingsDifficulty(e.target.value)}><option>Beginner-friendly</option><option>Balanced</option><option>Challenging</option></select></label>
+                <label className="cb-field">Weekly study target<select value={settingsWeekly} onChange={e=>setSettingsWeekly(e.target.value)}><option value="3">3 days per week</option><option value="4">4 days per week</option><option value="5">5 days per week</option><option value="6">6 days per week</option><option value="7">7 days per week</option></select></label>
+              </div>
+            </section>
+
+            <section className="panel cb-settings-card">
+              <div className="cb-settings-heading"><span className="cb-settings-icon"><Bell size={19}/></span><div><h3>Notifications</h3><p>Choose which reminders you want to enable.</p></div></div>
+              <div className="cb-setting-row"><div><b>Daily study reminder</b><small>Save your preferred time for a study reminder.</small></div><input aria-label="Daily study reminder" type="checkbox" checked={settingsStudyReminder} onChange={e=>setSettingsStudyReminder(e.target.checked)}/></div>
+              <div className="cb-setting-row"><div><b>Roadmap milestones</b><small>Preference for reminders about your next stage.</small></div><input aria-label="Roadmap milestones" type="checkbox" checked={settingsRoadmapReminder} onChange={e=>setSettingsRoadmapReminder(e.target.checked)}/></div>
+              <div className="cb-setting-row"><div><b>Weekly progress summary</b><small>Preference for a weekly learning recap.</small></div><input aria-label="Weekly progress summary" type="checkbox" checked={settingsWeeklySummary} onChange={e=>setSettingsWeeklySummary(e.target.checked)}/></div>
+              <label className="cb-field cb-time-field">Preferred reminder time<input type="time" value={settingsReminderTime} onChange={e=>setSettingsReminderTime(e.target.value)}/></label>
+              <p className="cb-settings-note">Reminder preferences are saved locally. Scheduled reminders and weekly summaries need a background notification service to run when the app is closed.</p>
+              <button className="secondary-btn" onClick={requestStudyNotificationPermission}>Enable browser notifications</button>
+            </section>
+
+            <section className="panel cb-settings-card">
+              <div className="cb-settings-heading"><span className="cb-settings-icon"><Sparkles size={19}/></span><div><h3>Appearance & Accessibility</h3><p>Adjust how CareerBloom looks and feels.</p></div></div>
+              <div className="cb-settings-grid">
+                <label className="cb-field">Color theme<select value={settingsTheme} onChange={e=>setSettingsTheme(e.target.value)}><option value="dark">Midnight navy (default)</option><option value="light">Light theme</option></select></label>
+              </div>
+              <div className="cb-setting-row"><div><b>Compact layout</b><small>Reduce spacing between cards.</small></div><input type="checkbox" aria-label="Compact layout" checked={settingsCompact} onChange={e=>setSettingsCompact(e.target.checked)}/></div>
+              <div className="cb-setting-row"><div><b>Reduce animations</b><small>Minimize motion across the interface.</small></div><input type="checkbox" aria-label="Reduce animations" checked={settingsReducedMotion} onChange={e=>setSettingsReducedMotion(e.target.checked)}/></div>
+            </section>
+
+            <section className="panel cb-settings-card">
+              <div className="cb-settings-heading"><span className="cb-settings-icon"><ShieldCheck size={19}/></span><div><h3>Privacy & Data</h3><p>Your current app stores demo data in this browser.</p></div></div>
+              <div className="cb-settings-note">Export a copy before clearing progress. Export excludes saved password entries. Clearing history does not delete your profile or login.</div>
+              <div className="cb-settings-actions"><button className="secondary-btn" onClick={exportCareerBloomData}><Download size={16}/> Export my data (JSON)</button><button className="secondary-btn" onClick={clearLearningHistory}><Trash2 size={16}/> Clear learning history</button><button className="cb-danger-btn" onClick={resetLearningProgress}><RotateCcw size={16}/> Reset learning progress</button></div>
+            </section>
+
+            <section className="panel cb-settings-card">
+              <div className="cb-settings-heading"><span className="cb-settings-icon"><HeartHandshake size={19}/></span><div><h3>About & Support</h3><p>Your space to grow from student to job-ready.</p></div></div>
+              <div className="cb-about-row"><div><b>CareerBloom AI</b><p>From Student to Job-Ready</p></div><span className="cb-version">Version 1.0 · Demo</span></div>
+              <p className="cb-settings-note">For feedback, share the issue with your project team. AI coaching and authentication currently use demo/local behavior; avoid storing sensitive information here.</p>
+              <div className="cb-settings-actions"><button className="secondary-btn" onClick={()=>alert("CareerBloom AI: choose a career, assess skills, follow your roadmap and review your progress.")}>How to use CareerBloom</button><button className="secondary-btn" onClick={()=>{const subject=encodeURIComponent("CareerBloom AI feedback");window.location.href="mailto:?subject="+subject;}}>Send feedback</button><button className="cb-danger-btn" onClick={logout}><LogOut size={16}/> Log out</button></div>
+            </section>
+
+            <div className="cb-settings-footer"><button className="primary-btn" onClick={saveSettings}><CheckCircle2 size={17}/> Save all preferences</button>{settingsSaved&&<span className="cb-saved-message"><CheckCircle2 size={16}/> Settings saved on this device</span>}</div>
+          </section>}
           {page==="AI Career Coach"&&<section className="panel chat-panel"><div className="chat-heading"><span className="coach-avatar"><Sparkles size={22}/></span><div><h3>Your AI Career Coach</h3><p><span className="online-dot"/> Ready to help you plan</p></div></div><div className="chat-messages">{chat.map((c,i)=><div key={i} className={`chat-bubble ${c.role==="user"?"user-bubble":""}`}>{c.text}</div>)}</div><div className="chat-input"><input value={question} onChange={e=>setQuestion(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendChat()} placeholder="Ask about your career, skills or interviews..."/><button className="primary-btn" onClick={sendChat}><ArrowRight size={18}/></button></div><small className="chat-disclaimer">Starter demo responses; connect an AI service for live personalized coaching.</small></section>}
         </div>}
       </main>
@@ -515,6 +1032,9 @@ function App() {
 }
 
 export default App;
+
+
+
 
 
 
