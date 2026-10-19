@@ -1,0 +1,57 @@
+﻿ame="smart-task-check" aria-label={t.done?"Mark incomplete":"Mark complete"} onClick={() => savePlannerTasks(plannerTasks.map((x:any)=>x.id===t.id?{...x,done:!x.done}:x))}>{t.done?"Ã¢Å“â€œ":""}</button>
+                  <div className="smart-task-copy"><b>{t.title}</b><span>{t.category}</span><small className={"priority-"+t.priority.toLowerCase()}>{t.priority} priority</small></div>
+                </article>)}
+                {!plannerTasks.some((t:any)=>t.date===plannerDate)&&<div className="planner-empty">No tasks for this date. Choose Ã¢â‚¬Å“Regenerate dayÃ¢â‚¬Â to create a career-focused plan.</div>}
+                <button className="assessment-secondary planner-add" onClick={() => {
+                  const title = window.prompt("Enter a learning task:");
+                  if (!title?.trim()) return;
+                  const newTask = {id:`${Date.now()}`,date:plannerDate,title:title.trim(),category:"Personal goal",start:"22:20",duration:30,priority:"Medium",done:false};
+                  savePlannerTasks([...plannerTasks,newTask]);
+                }}>+ Add a personal task</button>
+              </section>
+              <section className="panel planner-week">
+                <div className="panel-heading"><div><h3>Weekly calendar</h3><p>Your MondayÃ¢â‚¬â€œSunday learning rhythm</p></div></div>
+                <div className="planner-week-grid">{Array.from({length:7},(_,i)=>{
+                  const d=new Date(plannerWeekStart+"T12:00:00");
+                  d.setDate(d.getDate()+i);
+                  const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+                  const dayTasks=plannerTasks.filter((t:any)=>t.date===key);
+                  const complete=dayTasks.filter((t:any)=>t.done).length;
+                  return <button key={key} className={"planner-day "+(key===plannerDate?"planner-day-active":"")} onClick={()=>setPlannerDate(key)}>
+                    <span>{d.toLocaleDateString("en-IN",{weekday:"short"})}</span><b>{d.getDate()}</b><small>{complete}/{dayTasks.length} done</small><i><span style={{width:(dayTasks.length?complete/dayTasks.length*100:0)+"%"}}/></i>
+                  </button>;
+                })}</div>
+                <div className="planner-week-controls"><button className="assessment-secondary" onClick={()=>{
+                  const d=new Date(plannerWeekStart+"T12:00:00");d.setDate(d.getDate()-7);
+                  setPlannerWeekStart(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`);
+                }}>Ã¢â€ Â Previous week</button><button className="assessment-secondary" onClick={()=>{
+                  const d=new Date(plannerWeekStart+"T12:00:00");d.setDate(d.getDate()+7);
+                  setPlannerWeekStart(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`);
+                }}>Next week Ã¢â€ â€™</button></div>
+                <div className="planner-week-summary"><Sparkles size={17}/><span><b>Career focus</b><small>Tasks are starter suggestions based on your selected career. They are saved in this browser.</small></span></div>
+              </section>
+            </div>
+          </section>}
+          {page==="Improvement Analytics"&&(() => {
+            const now = new Date();
+            const cutoff = analyticsRange === "all" ? null : new Date(now.getTime() - Number(analyticsRange) * 86400000);
+            const history = assessmentHistory
+              .filter((item: any) => item && item.date && Number.isFinite(Number(item.score)))
+              .filter((item: any) => !cutoff || new Date(item.date) >= cutoff)
+              .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            const latest = history.length ? history[history.length - 1] : null;
+            const previous = history.length > 1 ? history[history.length - 2] : null;
+            const scoreChange = latest && previous ? Number(latest.score) - Number(previous.score) : null;
+            const tasks = (() => {
+              try {
+                const saved = JSON.parse(localStorage.getItem("cb-smart-planner-tasks") || "[]");
+                return Array.isArray(saved) ? saved : [];
+              } catch { return []; }
+            })();
+            const relevantTasks = tasks.filter((task: any) => task && task.date && (!cutoff || new Date(task.date + "T23:59:59") >= cutoff));
+            const doneTasks = relevantTasks.filter((task: any) => task.done);
+            const taskRate = relevantTasks.length ? Math.round(doneTasks.length / relevantTasks.length * 100) : 0;
+            const roadmapTotal = 5;
+            const completedForCareer = roadmapCompleted.filter((item: string) => item.startsWith(`${career}:`)).length;
+            const roadmapRate = Math.round(completedForCareer / roadmapTotal * 100);
+            const lastAttemptBreakdown = latest && Array.isArray(latest.breakdown) ? latest.breakdow

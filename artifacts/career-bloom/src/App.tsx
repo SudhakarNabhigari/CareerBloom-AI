@@ -304,6 +304,8 @@ function App() {
     JSON.parse(localStorage.getItem("cb-assessment-answers") || "{}")
   );
   const [assessmentReview, setAssessmentReview] = useState(false);
+  const [showInlineResults, setShowInlineResults] = useState(false);
+  const [resultsReviewIndex, setResultsReviewIndex] = useState(0);
   const [assessmentFinished, setAssessmentFinished] = useState(
     localStorage.getItem("cb-assessment-finished") === "true"
   );
@@ -488,6 +490,12 @@ function App() {
     const date = plannerToday();
     return makeCareerTasks(date, localStorage.getItem("cb-career") || "Generative AI Engineer");
   });
+  const [showPersonalTaskForm, setShowPersonalTaskForm] = useState(false);
+  const [personalTaskTitle, setPersonalTaskTitle] = useState("");
+  const [personalTaskStart, setPersonalTaskStart] = useState("22:20");
+  const [personalTaskEnd, setPersonalTaskEnd] = useState("22:50");
+  const [personalTaskError, setPersonalTaskError] = useState("");
+
   const [plannerWeekStart, setPlannerWeekStart] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
@@ -748,13 +756,13 @@ function App() {
             <div className="person"><div className="hair"/><div className="face"><span/><span/><i/></div><div className="body"/></div>
             <div className="laptop"><div className="screen"><i/><i/><i/></div><div className="base"/></div>
             <div className="float-card float-right"><CheckCircle2 size={18}/><div><b>Roadmap progress</b><small>One step at a time</small></div></div>
-            <div className="journey"><small>Ã¢â€”Â YOUR JOURNEY</small><div className="journey-line"><span>01</span><span>02</span><span>03</span><span>04</span></div><div className="journey-labels"><small>Discover</small><small>Learn</small><small>Build</small><small>Launch</small></div></div>
+            <div className="journey"><small>ÃƒÂ¢Ã¢â‚¬â€Ã‚Â YOUR JOURNEY</small><div className="journey-line"><span>01</span><span>02</span><span>03</span><span>04</span></div><div className="journey-labels"><small>Discover</small><small>Learn</small><small>Build</small><small>Launch</small></div></div>
           </div>
           <small className="footer-note">A private, browser-only workspace for your career journey.</small>
         </div>
       </section>
       <section className="auth-right">
-        <span className="float-symbol symbol-cap">Ã°Å¸Å½â€œ</span><span className="float-symbol symbol-book">Ã°Å¸â€œÅ“</span><span className="float-symbol symbol-bag">Ã°Å¸â€™Â¼</span>
+        <span className="float-symbol symbol-cap">ÃƒÂ°Ã…Â¸Ã…Â½Ã¢â‚¬Å“</span><span className="float-symbol symbol-book">ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã…â€œ</span><span className="float-symbol symbol-bag">ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â¼</span>
         <form className="auth-card" onSubmit={login}>
           <div className="eyebrow">WELCOME {mode === "login" ? "BACK" : "ABOARD"}</div>
           <h2>{mode === "login" ? "Sign in to CareerBloom" : "Create your account"}</h2>
@@ -920,12 +928,19 @@ function App() {
         <div className="sidebar-bottom"><div className="upgrade-card"><div className="upgrade-icon"><Sparkles size={17}/></div><b>Your future is built daily.</b><p>Small steps. Real progress.</p><button onClick={()=>setPage("Daily Planner")}>View today's plan <ArrowRight size={14}/></button></div><div className="profile-row"><button className="profile" onClick={() => setPage("Profile")}><div className="avatar">{user.slice(0,1).toUpperCase()}</div><div className="profile-copy"><b>{user}</b><small>Career explorer</small></div></button><button className="logout-btn" type="button" title="Log out" aria-label="Log out" onClick={logout}><LogOut size={17}/></button></div></div>
       </aside>
       <main className="main">
-        <header className="topbar"><button className="mobile-menu-btn icon-btn" onClick={()=>setMobileMenu(!mobileMenu)}><Menu size={20}/></button><div className="breadcrumb">Workspace <ChevronRight size={14}/><b>{page}</b></div><div className="study-timer-pill" title="Study time recorded today" style={{display:"flex",flexDirection:"column",gap:3,marginRight:12,padding:"7px 11px",border:"1px solid #343452",borderRadius:10,background:"#141a2b",whiteSpace:"nowrap"}}>
+        <header className="topbar"><button className="mobile-menu-btn icon-btn" onClick={()=>setMobileMenu(!mobileMenu)}><Menu size={20}/></button><div className="breadcrumb">Workspace <ChevronRight size={14}/><b>{page}</b></div><div className="study-timer-pill" title="Study time recorded today" style={{display:page.trim().startsWith("Skill Assessment")?"flex":"none",flexDirection:"column",gap:3,marginRight:12,padding:"7px 11px",border:"1px solid #343452",borderRadius:10,background:"#141a2b",whiteSpace:"nowrap"}}>
   <span style={{fontSize:11,color:"#a8b3d1"}}><Clock size={12} style={{display:"inline",verticalAlign:"-2px"}}/> Today {formatStudyTime(todayStudySeconds)}</span>
   <strong style={{fontSize:12,color:"#45d6b0"}}>{selectedLearningSubject}: {formatStudyTime(subjectStudySeconds)}</strong>
-</div><div className="top-actions"><div className="search-box"><Search size={16}/><input placeholder="Search your workspace..." value={search} onChange={e=>setSearch(e.target.value)}/><kbd>Ã¢Å’Ëœ K</kbd></div><button className="icon-btn" title="Notifications"><Bell size={18}/><span className="notification-dot"/></button></div></header>
+</div></header>
         {page==="Overview" ? <div className="content">
-          <section className="overview-analytics">
+          <section className="overview-hero">
+  <div className="overview-hero-copy">
+    <span className="eyebrow">✦ YOUR LEARNING AT A GLANCE</span>
+    <h2>Your future, one skill at a time.</h2>
+    <p>Track your progress, build consistency, and move closer to your dream career.</p>
+  </div>
+</section>
+<section className="overview-analytics">
             <div className="analytics-heading">
               <div>
                 <span className="eyebrow">YOUR LEARNING AT A GLANCE</span>
@@ -1039,7 +1054,7 @@ function App() {
         <input value={career || "Not selected"} readOnly/>
       </label>
       <label className="cb-profile-field">Account type
-        <input value="Career Explorer · Local demo" readOnly/>
+        <input value="Career Explorer - Local account" readOnly/>
       </label>
     </div>
     <button className="primary-btn" onClick={async()=>{
@@ -1076,17 +1091,32 @@ function App() {
   </section>
 
   <div className="cb-profile-stats">
-    <div className="panel cb-profile-stat"><span className="cb-profile-stat-icon">✦</span><small>Dream career</small><b>{career || "Not selected"}</b><button onClick={()=>setPage("Dream Career")}>Edit career →</button></div>
-    <div className="panel cb-profile-stat"><span className="cb-profile-stat-icon">◎</span><small>Skill assessment</small><b>{assessmentFinished ? "Completed" : "Not completed"}</b><button onClick={()=>setPage("Skill Assessment")}>View assessment →</button></div>
-    <div className="panel cb-profile-stat"><span className="cb-profile-stat-icon">✓</span><small>Planner tasks done</small><b>{tasks.filter(t=>t.done).length} of {tasks.length}</b><button onClick={()=>setPage("Daily Planner")}>Open planner →</button></div>
+    <div className="panel cb-profile-stat">
+      <span className="cb-profile-stat-icon"><Compass size={20}/></span>
+      <small>Dream Career</small>
+      <b>{career || "Not selected"}</b>
+      <button onClick={()=>setPage("Dream Career")}>Edit career <ArrowRight size={13}/></button>
+    </div>
+    <div className="panel cb-profile-stat">
+      <span className="cb-profile-stat-icon"><Target size={20}/></span>
+      <small>Skill Assessment</small>
+      <b>{assessmentFinished ? "Completed" : "Not completed"}</b>
+      <button onClick={()=>setPage("Skill Assessment")}>View assessment <ArrowRight size={13}/></button>
+    </div>
+    <div className="panel cb-profile-stat">
+      <span className="cb-profile-stat-icon"><CheckCircle2 size={20}/></span>
+      <small>Planner Tasks Done</small>
+      <b>{tasks.filter(t=>t.done).length} of {tasks.length}</b>
+      <button onClick={()=>setPage("Daily Planner")}>Open planner <ArrowRight size={13}/></button>
+    </div>
   </div>
 
   <section className="panel cb-profile-card">
     <div className="cb-profile-card-heading"><div><h3>Your workspace</h3><p>Quick access to your learning journey.</p></div></div>
     <div className="cb-profile-links">
-      <button onClick={()=>setPage("My Roadmap")}><span>My Roadmap</span><span>View learning stages →</span></button>
-      <button onClick={()=>setPage("Improvement Analytics")}><span>Improvement Analytics</span><span>Review your progress →</span></button>
-      <button onClick={()=>setPage("Settings")}><span>Settings & Preferences</span><span>Manage your preferences →</span></button>
+      <button onClick={()=>setPage("My Roadmap")}><span>My Roadmap</span><span>View learning stages â†’</span></button>
+      <button onClick={()=>setPage("Improvement Analytics")}><span>Improvement Analytics</span><span>Review your progress â†’</span></button>
+      <button onClick={()=>setPage("Settings")}><span>Settings & Preferences</span><span>Manage your preferences â†’</span></button>
     </div>
     <div className="cb-profile-account-actions">
       <p>Profile and learning data are stored in this browser. This demo profile is not a verified online account.</p>
@@ -1094,9 +1124,13 @@ function App() {
     </div>
   </section>
 </section>}
-          {page==="Dream Career"&&<section className="panel inner-panel"><h3>Choose your dream career</h3><p>Search for a role and set your career goal.</p><div className="career-search"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search careers, e.g. AI Engineer"/></div><div className="career-options">{["Generative AI Engineer","Machine Learning Engineer","Software Engineer","Data Scientist","Cloud AI Engineer","AI Researcher"].filter(c=>c.toLowerCase().includes(search.toLowerCase())).map(c=><button key={c} className={`career-option ${career===c?"selected":""}`} onClick={()=>{setCareer(c);localStorage.setItem("cb-career",c)}}><span className="feature-icon"><BrainCircuit size={18}/></span><span><b>{c}</b><small>Explore skills and learning paths</small></span>{career===c?<CheckCircle2 size={19}/>:<ChevronRight size={18}/>}</button>)}</div><button className="primary-btn" onClick={()=>setPage("My Roadmap")}>Build my roadmap <ArrowRight size={16}/></button></section>
-}
-          {page==="Dream Career"&&<section className="panel inner-panel dream-career-details">
+          {page==="Dream Career"&&<div className="dream-career-layout"><section className="panel inner-panel"><h3>Choose your dream career</h3><p>Search for a role and set your career goal.</p><div className="career-search"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search careers, e.g. AI Engineer"/></div><div className="career-options">{["Generative AI Engineer","Machine Learning Engineer","Software Engineer","Data Scientist","Cloud AI Engineer","AI Researcher"].filter(c=>c.toLowerCase().includes(search.toLowerCase())).map(c=><button key={c} className={`career-option ${career===c?"selected":""}`} onClick={()=>{setCareer(c);localStorage.setItem("cb-career",c)}}><span className="feature-icon"><BrainCircuit size={18}/></span><span><b>{c}</b><small>Explore skills and learning paths</small></span>{career===c?<CheckCircle2 size={19}/>:<ChevronRight size={18}/>}</button>)}</div><button className="primary-btn" onClick={()=>setPage("My Roadmap")}>Build my roadmap <ArrowRight size={16}/></button></section><aside className="panel inner-panel career-project-podium">
+<h3>🏆 Top 3 Projects</h3>
+<p>Build your portfolio with these project ideas.</p>
+<div className="career-project-card podium-gold"><span>🥇 GOLD</span><b>AI-Powered Career Assistant</b><small>Create a smart assistant tailored to your selected career.</small></div>
+<div className="career-project-card podium-silver"><span>🥈 SILVER</span><b>Real-World Data Dashboard</b><small>Build a dashboard that analyzes useful data and insights.</small></div>
+<div className="career-project-card podium-bronze"><span>🥉 BRONZE</span><b>Smart Automation Tool</b><small>Automate a practical task using your career skills.</small></div>
+</aside></div>}{page==="Dream Career"&&<section className="panel inner-panel dream-career-details">
   <div className="eyebrow"><BrainCircuit size={14}/> YOUR SELECTED DREAM CAREER</div>
   <h2>{career || "Choose a career"}</h2>
   <p>{getCareerDetails(career).description}</p>
@@ -1116,14 +1150,36 @@ function App() {
   <div className="dream-career-tip"><b>Career tip</b><p>{getCareerDetails(career).tip}</p></div>
 </section>}
           {page.trim().startsWith("Skill Assessment")&&<section className="assessment-page">
-  <div className="assessment-hero">
-    <div>
-      <span className="eyebrow"><Target size={14}/> CAREER READINESS CHECK</span>
-      <h2>Skill Assessment</h2>
-      <p>Test your knowledge, discover strengths, and find what to learn next.</p>
+  <div className="assessment-hero premium-assessment-hero">
+  <div className="premium-hero-copy">
+    <span className="eyebrow"><Sparkles size={14}/> CAREERBLOOM WORKSPACE / SKILL ASSESSMENT</span>
+    <h2>Discover. <span>Practice.</span> <em>Grow.</em></h2>
+    <p>Build real skills, complete practical challenges, and watch your progress grow toward your dream career.</p>
+    <div className="premium-benefits">
+      <div><span className="premium-benefit-icon mint"><CheckCircle2 size={19}/></span><span><b>Learn by doing</b><small>Topic-wise practical tasks</small></span></div>
+      <div><span className="premium-benefit-icon blue"><TrendingUp size={19}/></span><span><b>Track real progress</b><small>Automatically saved</small></span></div>
+      <div><span className="premium-benefit-icon violet"><BrainCircuit size={19}/></span><span><b>Grow with purpose</b><small>Career-focused learning</small></span></div>
     </div>
-    <div className="assessment-career"><span>YOUR DREAM CAREER</span><b>{career || "Choose a career"}</b></div>
   </div>
+  <div className="premium-hero-art" aria-label="Animated learning journey illustration">
+    <div className="premium-art-orbit orbit-a"></div>
+    <div className="premium-art-orbit orbit-b"></div>
+    <div className="premium-art-spark spark-a">âœ¦</div>
+    <div className="premium-art-spark spark-b">âœ§</div>
+    <div className="premium-student">
+      <div className="student-hair"></div>
+      <div className="student-face"><i></i><i></i><span></span></div>
+      <div className="student-neck"></div>
+      <div className="student-hoodie"><Sparkles size={22}/></div>
+      <div className="student-laptop"><div><Sparkles size={19}/></div><span></span></div>
+    </div>
+    <div className="premium-float-card float-checks"><CheckCircle2 size={17}/><span><b>Keep learning</b><small>One topic at a time</small></span></div>
+    <div className="premium-float-card float-chart"><TrendingUp size={19}/><span><b>Real progress</b><small>Your effort adds up</small></span></div>
+    <div className="premium-art-quote">Small steps.<br/><strong>Extraordinary results.</strong></div>
+    <div className="premium-art-books"><span></span><span></span><span></span></div>
+  </div>
+  <div className="assessment-career premium-career-card"><span>YOUR DREAM CAREER</span><b>{career || "Choose a career"}</b></div>
+</div>
     <section className="panel" style={{marginBottom:24,padding:24}}>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:16,flexWrap:"wrap",marginBottom:18}}>
       <div>
@@ -1145,7 +1201,12 @@ function App() {
         const active = selectedLearningSubject === subject.name;
         return <button key={subject.name} type="button" onClick={() => setSelectedLearningSubject(subject.name)}
           style={{textAlign:"left",padding:16,borderRadius:14,border:active?"1px solid "+subject.color:"1px solid #303750",background:active?"#20243a":"#141a2b",color:"#f5f7ff",cursor:"pointer"}}>
-          <span style={{display:"block",fontWeight:700,marginBottom:8}}>{subject.name}</span>
+          <span className={"subject-card-title subject-icon-" + subject.name.replace(/[^a-zA-Z]/g,"").toLowerCase()}>
+  <span className="subject-icon-badge" aria-hidden="true">
+    {subject.name === "Python" ? "PY" : subject.name === "Data Structures & Algorithms" ? "DSA" : subject.name === "Machine Learning" ? "ML" : subject.name === "Mathematics" ? "π" : subject.name === "Cloud Computing" ? "CL" : "AI"}
+  </span>
+  <span>{subject.name}</span>
+</span>
           <span style={{display:"block",fontSize:13,color:"#a8b3d1"}}>{done}/{subject.topics.length} topics completed</span>
           <span style={{display:"block",height:5,background:"#303750",borderRadius:8,overflow:"hidden",marginTop:12}}>
             <span style={{display:"block",height:"100%",width:(done/subject.topics.length*100)+"%",background:subject.color}} />
@@ -1155,7 +1216,12 @@ function App() {
     </div>
     {learningSubjects.filter(subject => subject.name === selectedLearningSubject).map(subject => (
       <div key={subject.name}>
-        <h3 style={{marginBottom:6}}>{subject.name} learning path</h3>
+        <h3 className={"learning-path-title subject-icon-" + subject.name.replace(/[^a-zA-Z]/g,"").toLowerCase()}>
+  <span className="subject-icon-badge" aria-hidden="true">
+    {subject.name === "Python" ? "PY" : subject.name === "Data Structures & Algorithms" ? "DSA" : subject.name === "Machine Learning" ? "ML" : subject.name === "Mathematics" ? "π" : subject.name === "Cloud Computing" ? "CL" : "AI"}
+  </span>
+  <span>{subject.name} Learning Path</span>
+</h3>
         <p className="assessment-muted">Mark a topic complete after you have practised it.</p>
         <div style={{display:"grid",gap:10}}>
           {subject.topics.map((topic,index) => {
@@ -1166,6 +1232,17 @@ function App() {
               <span style={{flex:1}}>
                 <strong style={{display:"block",marginBottom:5,color:done?"#45d6b0":"#f5f7ff"}}>{index+1}. {topic.title}</strong>
                 <span style={{display:"block",fontSize:13,color:"#a8b3d1"}}>{topic.task}</span>
+<span className="topic-resource-links">
+  <a href={"https://www.youtube.com/results?search_query="+encodeURIComponent(subject.name+" "+topic.title+" tutorial")} target="_blank" rel="noreferrer" onClick={event=>event.stopPropagation()}>Watch Tutorial</a>
+  <a href={
+    subject.name === "Python" ? "https://docs.python.org/3/tutorial/" :
+    subject.name === "Data Structures & Algorithms" ? "https://www.geeksforgeeks.org/data-structures/" :
+    subject.name === "Machine Learning" ? "https://developers.google.com/machine-learning" :
+    subject.name === "Mathematics" ? "https://www.khanacademy.org/math" :
+    subject.name === "Cloud Computing" ? "https://skillbuilder.aws/" :
+    "https://www.deeplearning.ai/"
+  } target="_blank" rel="noreferrer" onClick={event=>event.stopPropagation()}>Read Guide</a>
+</span>
               </span>
               <span style={{fontSize:12,color:done?"#45d6b0":"#a8b3d1"}}>{done?"Completed":"Mark done"}</span>
             </label>;
@@ -1173,9 +1250,61 @@ function App() {
         </div>
       </div>
     ))}
+    <div className="test-results-shortcut">
+      <div className="test-results-icon"><TrendingUp size={22}/></div>
+      <div className="test-results-copy">
+        <span className="eyebrow">YOUR ASSESSMENT</span>
+        <h3>Check your test results</h3>
+        <p>{assessmentFinished
+          ? (() => {
+              const correct = assessmentQuestions.filter((q, i) => assessmentAnswers[i] === q.answer).length;
+              const wrong = assessmentQuestions.length - correct;
+              return `Score: ${correct}/${assessmentQuestions.length} (${Math.round(correct / assessmentQuestions.length * 100)}%) | ${correct} correct | ${wrong} wrong. Click to view detailed results and answer explanations.`;
+            })()
+          : "Finish and submit your assessment to view your total score, correct and wrong answers, and explanations."}</p>
+      </div>
+      <button type="button" className="test-results-button" onClick={() => {
+        if (!assessmentFinished) {
+          document.getElementById("assessment-test-panel")?.scrollIntoView({behavior:"smooth",block:"center"});
+        } else {
+          setShowInlineResults(value => !value);
+          setResultsReviewIndex(0);
+        }
+      }}>
+        {assessmentFinished ? (showInlineResults ? "Hide results" : "View my results") : "Go to test"} <ArrowRight size={16}/>
+      </button>
+      {showInlineResults && assessmentFinished && <div className="inline-assessment-results">
+        <div className="inline-result-stats">
+          <div><span>Total score</span><strong>{assessmentQuestions.filter((q, i) => assessmentAnswers[i] === q.answer).length}/{assessmentQuestions.length}</strong><small>{Math.round(assessmentQuestions.filter((q, i) => assessmentAnswers[i] === q.answer).length / assessmentQuestions.length * 100)}% score</small></div>
+          <div><span>Correct</span><strong className="inline-correct-count">{assessmentQuestions.filter((q, i) => assessmentAnswers[i] === q.answer).length}</strong></div>
+          <div><span>Wrong / unanswered</span><strong className="inline-wrong-count">{assessmentQuestions.filter((q, i) => assessmentAnswers[i] !== q.answer).length}</strong></div>
+        </div>
+        <h4 className="inline-review-title">Question review</h4>
+        {(() => {
+          const q = assessmentQuestions[resultsReviewIndex];
+          const selected = assessmentAnswers[resultsReviewIndex];
+          const correct = selected === q.answer;
+          return <article className={"inline-review-question " + (correct ? "review-correct" : "review-incorrect")}>
+            <div className="inline-review-top">
+              <span>Question {resultsReviewIndex + 1} of {assessmentQuestions.length} | {q.skill}</span>
+              <strong>{correct ? "Correct" : "Incorrect"}</strong>
+            </div>
+            <h4>{q.question}</h4>
+            <p><b>Your answer:</b> {q.options[selected] ?? "Not answered"}</p>
+            <p><b>Correct answer:</b> {q.options[q.answer]}</p>
+            <p className="inline-review-explanation"><b>Explanation:</b> {q.explanation}</p>
+          </article>;
+        })()}
+        <div className="inline-review-navigation">
+          <button type="button" className="assessment-secondary" disabled={resultsReviewIndex === 0} onClick={() => setResultsReviewIndex(index => Math.max(0, index - 1))}>Previous</button>
+          <span>{resultsReviewIndex + 1} / {assessmentQuestions.length}</span>
+          <button type="button" className="assessment-secondary" disabled={resultsReviewIndex === assessmentQuestions.length - 1} onClick={() => setResultsReviewIndex(index => Math.min(assessmentQuestions.length - 1, index + 1))}>Next question <ArrowRight size={14}/></button>
+        </div>
+      </div>}
+    </div>
   </section>
 <div className="assessment-layout">
-    <section className="panel assessment-main">
+    <section id="assessment-test-panel" className="panel assessment-main">
       {!assessmentFinished ? <>
         <div className="assessment-topline"><span>QUESTION {assessmentIndex + 1} OF {assessmentQuestions.length}</span><span>{Math.round((Object.keys(assessmentAnswers).length / assessmentQuestions.length) * 100)}% answered</span></div>
         <div className="assessment-progress"><span style={{width: (((assessmentIndex + 1) / assessmentQuestions.length) * 100) + "%"}} /></div>
@@ -1248,7 +1377,7 @@ function App() {
         <div className="assessment-feedback"><b>Recommended next step</b><span>{assessmentQuestions.filter((q, i) => assessmentAnswers[i] !== q.answer).length ? "Focus first on the skills with lower scores and practise them through small projects." : "Great result! Reinforce your knowledge with projects and practical exercises."}</span></div>
         <div className="assessment-review-heading">
           <h3>Answer review</h3>
-          <button className="assessment-secondary" onClick={() => setAssessmentReview(v => !v)}>
+          <button className="assessment-secondary" onClick={() => { setAssessmentReview(v => !v); setTimeout(() => document.querySelector(".assessment-review-list")?.scrollIntoView({behavior:"smooth",block:"nearest"}), 80); }}>
             {assessmentReview ? "Hide answers" : "Review all answers"}
           </button>
         </div>
@@ -1258,7 +1387,7 @@ function App() {
             const correct = selected === q.answer;
             return <article key={i} className={"assessment-review-item " + (correct ? "review-correct" : "review-incorrect")}>
               <div className="assessment-review-top">
-                <span>Question {i + 1} Ã‚Â· {q.skill}</span>
+                <span>Question {i + 1} Ãƒâ€šÃ‚| {q.skill}</span>
                 <b>{correct ? "Correct" : "Incorrect"}</b>
               </div>
               <h4>{q.question}</h4>
@@ -1289,6 +1418,20 @@ function App() {
   <div className="eyebrow"><Sparkles size={14}/> PERSONALIZED CAREER PLAN</div>
   <h2>My Roadmap to {career || "Your Dream Career"}</h2>
   <p>Follow these milestones in order. Each stage builds skills needed for your selected career.</p>
+<div className="roadmap-overview">
+  <div className="roadmap-overview-ring" style={{background:`conic-gradient(#10d49a ${(roadmapCompleted.filter(x=>x.startsWith(`${career}:`)).length/5)*360}deg,#273047 0deg)`}}>
+    <div><b>{Math.round(roadmapCompleted.filter(x=>x.startsWith(`${career}:`)).length/5*100)}%</b></div>
+  </div>
+  <div className="roadmap-overview-copy">
+    <b>Overall Progress</b>
+    <span>{roadmapCompleted.filter(x=>x.startsWith(`${career}:`)).length} of 5 stages completed</span>
+    <div className="roadmap-overview-track"><span style={{width:`${roadmapCompleted.filter(x=>x.startsWith(`${career}:`)).length/5*100}%`}} /></div>
+  </div>
+  <div className="roadmap-overview-message">
+    <b>{roadmapCompleted.filter(x=>x.startsWith(`${career}:`)).length===5 ? "Roadmap completed!" : "You're making progress!"}</b>
+    <span>{roadmapCompleted.filter(x=>x.startsWith(`${career}:`)).length===5 ? "You completed all five stages." : "Keep learning and move toward your career goal."}</span>
+  </div>
+</div>
   {(career==="Generative AI Engineer" ? [
     ["01","Programming Foundations","Python, Git, GitHub, DSA basics, NumPy and Pandas","Build a Python utility and publish it on GitHub."],
     ["02","ML and Deep Learning","Statistics, scikit-learn, model evaluation and PyTorch","Train and evaluate a machine-learning model."],
@@ -1331,12 +1474,23 @@ function App() {
       <b>{m[1]}</b>
       <p>{m[2]}</p>
       <small><strong>Milestone:</strong> {m[3]}</small>
+      <div className="roadmap-resources">
+        <b>Key Resources</b>
+        <div>
+          {(i===0 ? [["Python Docs","https://docs.python.org/3/"],["GitHub","https://github.com/"],["LeetCode","https://leetcode.com/"]] :
+            i===1 ? [["Scikit-learn","https://scikit-learn.org/"],["PyTorch","https://pytorch.org/"],["Kaggle","https://www.kaggle.com/"]] :
+            i===2 ? [["Hugging Face","https://huggingface.co/"],["RAG Guide","https://python.langchain.com/"],["AI Learning","https://learn.microsoft.com/"]] :
+            i===3 ? [["FastAPI","https://fastapi.tiangolo.com/"],["Azure Learn","https://learn.microsoft.com/"],["Docker","https://docs.docker.com/"]] :
+            [["Resume Guide","https://careerservices.fas.harvard.edu/resources/create-a-resume/"],["Interview Prep","https://leetcode.com/"],["GitHub Portfolio","https://github.com/"]]
+          ).map(([label,url])=><a key={label} href={url} target="_blank" rel="noreferrer">{label}</a>)}
+        </div>
+      </div>
     </div>
     <button type="button"
       className={"milestone-status roadmap-toggle " + (roadmapCompleted.includes(`${career}:${m[0]}`) ? "roadmap-toggle-done" : "")}
       aria-pressed={roadmapCompleted.includes(`${career}:${m[0]}`)}
       onClick={() => toggleRoadmapMilestone(`${career}:${m[0]}`)}>
-      {roadmapCompleted.includes(`${career}:${m[0]}`) ? "âœ“ Completed" : "Mark complete"}
+      {roadmapCompleted.includes(`${career}:${m[0]}`) ? "Completed" : "Mark complete"}
     </button>
   </div>)}
   <div className="dream-career-tip">
@@ -1368,19 +1522,97 @@ function App() {
                 <div className="panel-heading"><div><h3>Daily timeline</h3><p>{new Date(plannerDate+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"})}</p></div><input aria-label="Choose planner date" type="date" value={plannerDate} onChange={e=>setPlannerDate(e.target.value)}/></div>
                 {plannerTasks.filter((t:any)=>t.date===plannerDate).sort((a:any,b:any)=>a.start.localeCompare(b.start)).map((t:any)=><article className={"smart-task "+(t.done?"smart-task-done":"")} key={t.id}>
                   <div className="smart-task-time">{t.start}<small>{t.duration} min</small></div>
-                  <button className="smart-task-check" aria-label={t.done?"Mark incomplete":"Mark complete"} onClick={() => savePlannerTasks(plannerTasks.map((x:any)=>x.id===t.id?{...x,done:!x.done}:x))}>{t.done?"âœ“":""}</button>
+                  
                   <div className="smart-task-copy"><b>{t.title}</b><span>{t.category}</span><small className={"priority-"+t.priority.toLowerCase()}>{t.priority} priority</small></div>
-                </article>)}
-                {!plannerTasks.some((t:any)=>t.date===plannerDate)&&<div className="planner-empty">No tasks for this date. Choose â€œRegenerate dayâ€ to create a career-focused plan.</div>}
-                <button className="assessment-secondary planner-add" onClick={() => {
-                  const title = window.prompt("Enter a learning task:");
-                  if (!title?.trim()) return;
-                  const newTask = {id:`${Date.now()}`,date:plannerDate,title:title.trim(),category:"Personal goal",start:"22:20",duration:30,priority:"Medium",done:false};
-                  savePlannerTasks([...plannerTasks,newTask]);
-                }}>+ Add a personal task</button>
+<div className="smart-task-actions">
+  <button type="button" className={"smart-task-complete " + (t.done ? "is-complete" : "")}
+    onClick={() => savePlannerTasks(plannerTasks.map((x:any) => x.id === t.id ? {...x, done: !x.done} : x))}>
+    {t.done ? "Completed" : "Complete"}
+  </button>
+  <button type="button" className="smart-task-delete"
+    onClick={() => {
+      if (window.confirm("Delete this task?")) {
+        savePlannerTasks(plannerTasks.filter((x:any) => x.id !== t.id));
+      }
+    }}><Trash2 size={16} strokeWidth={2} /></button>
+</div>
+</article>)}
+                {!plannerTasks.some((t:any)=>t.date===plannerDate)&&<div className="planner-empty">No tasks for this date. Choose Ã¢â‚¬Å“Regenerate dayÃ¢â‚¬Â to create a career-focused plan.</div>}
+                {showPersonalTaskForm && <form className="planner-personal-form" onSubmit={(e) => {
+                  e.preventDefault();
+                  const title = personalTaskTitle.trim();
+                  if (!title) {
+                    setPersonalTaskError("Please enter a task name.");
+                    return;
+                  }
+                  if (personalTaskEnd <= personalTaskStart) {
+                    setPersonalTaskError("End time must be later than start time.");
+                    return;
+                  }
+                  const [sh, sm] = personalTaskStart.split(":").map(Number);
+                  const [eh, em] = personalTaskEnd.split(":").map(Number);
+                  const duration = eh * 60 + em - (sh * 60 + sm);
+                  const newTask = {
+                    id: `${Date.now()}`,
+                    date: plannerDate,
+                    title,
+                    category: "Personal goal",
+                    start: personalTaskStart,
+                    duration,
+                    priority: "Medium",
+                    done: false
+                  };
+                  savePlannerTasks([...plannerTasks, newTask]);
+                  setPersonalTaskTitle("");
+                  setPersonalTaskStart("22:20");
+                  setPersonalTaskEnd("22:50");
+                  setPersonalTaskError("");
+                  setShowPersonalTaskForm(false);
+                }}>
+                  <div className="planner-personal-form-title">Add a personal task</div>
+                  <label className="planner-form-field planner-form-task-name">
+                    <span>Task name</span>
+                    <input
+                      type="text"
+                      value={personalTaskTitle}
+                      onChange={e => setPersonalTaskTitle(e.target.value)}
+                      placeholder="e.g. Practise Python"
+                      maxLength={100}
+                      autoFocus
+                      required
+                    />
+                  </label>
+                  <div className="planner-form-time-fields">
+                    <label className="planner-form-field">
+                      <span>Starting time</span>
+                      <input type="time" value={personalTaskStart}
+                        onChange={e => setPersonalTaskStart(e.target.value)} required />
+                    </label>
+                    <label className="planner-form-field">
+                      <span>Ending time</span>
+                      <input type="time" value={personalTaskEnd}
+                        onChange={e => setPersonalTaskEnd(e.target.value)} required />
+                    </label>
+                  </div>
+                  {personalTaskError && <p className="planner-form-error" role="alert">{personalTaskError}</p>}
+                  <div className="planner-form-actions">
+                    <button type="submit" className="primary-btn">Save task</button>
+                    <button type="button" className="assessment-secondary" onClick={() => {
+                      setShowPersonalTaskForm(false);
+                      setPersonalTaskError("");
+                    }}>Cancel</button>
+                  </div>
+                </form>}
+                <button type="button" className="assessment-secondary planner-add"
+                  onClick={() => {
+                    setShowPersonalTaskForm(v => !v);
+                    setPersonalTaskError("");
+                  }}>
+                  {showPersonalTaskForm ? "âˆ’ Close task form" : "+ Add a personal task"}
+                </button>
               </section>
               <section className="panel planner-week">
-                <div className="panel-heading"><div><h3>Weekly calendar</h3><p>Your Mondayâ€“Sunday learning rhythm</p></div></div>
+                <div className="panel-heading"><div><h3>Weekly calendar</h3><p>Your MondayÃ¢â‚¬â€œSunday learning rhythm</p></div></div>
                 <div className="planner-week-grid">{Array.from({length:7},(_,i)=>{
                   const d=new Date(plannerWeekStart+"T12:00:00");
                   d.setDate(d.getDate()+i);
@@ -1394,10 +1626,10 @@ function App() {
                 <div className="planner-week-controls"><button className="assessment-secondary" onClick={()=>{
                   const d=new Date(plannerWeekStart+"T12:00:00");d.setDate(d.getDate()-7);
                   setPlannerWeekStart(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`);
-                }}>â† Previous week</button><button className="assessment-secondary" onClick={()=>{
+                }}>Ã¢â€ Â Previous week</button><button className="assessment-secondary" onClick={()=>{
                   const d=new Date(plannerWeekStart+"T12:00:00");d.setDate(d.getDate()+7);
                   setPlannerWeekStart(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`);
-                }}>Next week â†’</button></div>
+                }}>Next week Ã¢â€ â€™</button></div>
                 <div className="planner-week-summary"><Sparkles size={17}/><span><b>Career focus</b><small>Tasks are starter suggestions based on your selected career. They are saved in this browser.</small></span></div>
               </section>
             </div>
@@ -1479,9 +1711,9 @@ function App() {
               </div>
 
               <div className="improvement-stats">
-                <article className="improvement-stat"><span>Latest assessment</span><b>{latest ? `${latest.score}%` : "â€”"}</b><small>{latest ? new Date(latest.date).toLocaleDateString("en-IN") : "No saved attempt"}</small></article>
-                <article className="improvement-stat"><span>Change vs previous</span><b className={scoreChange === null ? "" : scoreChange >= 0 ? "analytics-positive" : "analytics-negative"}>{scoreChange === null ? "â€”" : `${scoreChange > 0 ? "+" : ""}${scoreChange} pts`}</b><small>{previous ? "Compared with previous attempt" : "Requires two attempts"}</small></article>
-                <article className="improvement-stat"><span>Planner completion</span><b>{relevantTasks.length ? `${taskRate}%` : "â€”"}</b><small>{doneTasks.length} of {relevantTasks.length} saved tasks</small></article>
+                <article className="improvement-stat"><span>Latest assessment</span><b>{latest ? `${latest.score}%` : "Ã¢â‚¬â€"}</b><small>{latest ? new Date(latest.date).toLocaleDateString("en-IN") : "No saved attempt"}</small></article>
+                <article className="improvement-stat"><span>Change vs previous</span><b className={scoreChange === null ? "" : scoreChange >= 0 ? "analytics-positive" : "analytics-negative"}>{scoreChange === null ? "Ã¢â‚¬â€" : `${scoreChange > 0 ? "+" : ""}${scoreChange} pts`}</b><small>{previous ? "Compared with previous attempt" : "Requires two attempts"}</small></article>
+                <article className="improvement-stat"><span>Planner completion</span><b>{relevantTasks.length ? `${taskRate}%` : "Ã¢â‚¬â€"}</b><small>{doneTasks.length} of {relevantTasks.length} saved tasks</small></article>
                 <article className="improvement-stat"><span>Roadmap progress</span><b>{roadmapRate}%</b><small>{completedForCareer} of {roadmapTotal} milestones</small></article>
               </div>
 
@@ -1507,7 +1739,7 @@ function App() {
                 <article className="panel improvement-card">
                   <div className="improvement-card-heading"><div><h3>Career roadmap</h3><p>{career} milestone completion</p></div></div>
                   <div className="roadmap-progress-visual"><div className="roadmap-ring" style={{background:`conic-gradient(#45d6b0 ${roadmapRate*3.6}deg,#273047 0deg)`}}><div><b>{roadmapRate}%</b><span>complete</span></div></div><div className="roadmap-progress-copy"><b>{completedForCareer} / {roadmapTotal} milestones</b><span>Mark milestones complete on My Roadmap. Progress is stored in this browser.</span><button className="assessment-secondary" onClick={()=>setPage("My Roadmap")}>Open roadmap <ArrowRight size={14}/></button></div></div>
-                  <div className="roadmap-mini-list">{["01","02","03","04","05"].map((id,index)=>{const done=roadmapCompleted.includes(`${career}:${id}`);return <div key={id}><span className={done?"roadmap-mini-done":""}>{done?"âœ“":id}</span><b>{["Foundations","Core skills","Applied project","Deployment","Career preparation"][index]}</b><small>{done?"Completed":"Not marked complete"}</small></div>})}</div>
+                  <div className="roadmap-mini-list">{["01","02","03","04","05"].map((id,index)=>{const done=roadmapCompleted.includes(`${career}:${id}`);return <div key={id}><span className={done?"roadmap-mini-done":""}>{done?"Ã¢Å“â€œ":id}</span><b>{["Foundations","Core skills","Applied project","Deployment","Career preparation"][index]}</b><small>{done?"Completed":"Not marked complete"}</small></div>})}</div>
                 </article>
               </div>
 
@@ -1572,7 +1804,7 @@ function App() {
 
             <section className="panel cb-settings-card">
               <div className="cb-settings-heading"><span className="cb-settings-icon"><HeartHandshake size={19}/></span><div><h3>About & Support</h3><p>Your space to grow from student to job-ready.</p></div></div>
-              <div className="cb-about-row"><div><b>CareerBloom AI</b><p>From Student to Job-Ready</p></div><span className="cb-version">Version 1.0 · Demo</span></div>
+              <div className="cb-about-row"><div><b>CareerBloom AI</b><p>From Student to Job-Ready</p></div><span className="cb-version">Version 2.0</span></div>
               <p className="cb-settings-note">For feedback, share the issue with your project team. AI coaching and authentication currently use demo/local behavior; avoid storing sensitive information here.</p>
               <div className="cb-settings-actions"><button className="secondary-btn" onClick={()=>alert("CareerBloom AI: choose a career, assess skills, follow your roadmap and review your progress.")}>How to use CareerBloom</button><button className="secondary-btn" onClick={()=>{const subject=encodeURIComponent("CareerBloom AI feedback");window.location.href="mailto:?subject="+subject;}}>Send feedback</button><button className="cb-danger-btn" onClick={logout}><LogOut size={16}/> Log out</button></div>
             </section>
@@ -1587,6 +1819,24 @@ function App() {
 }
 
 export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
