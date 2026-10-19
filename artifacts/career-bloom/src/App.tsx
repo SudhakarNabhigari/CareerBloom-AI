@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+﻿import { useEffect, useState } from "react";
 import {
   Sparkles, Compass, Target, TrendingUp, LayoutDashboard, User, ShieldCheck, Download, Trash2, RotateCcw, HeartHandshake,
   Map, CalendarDays, Bell, Search,
@@ -11,36 +11,11 @@ import {
   CartesianGrid, BarChart, Bar, PieChart, Pie, Cell, RadialBarChart, RadialBar, YAxis
 } from "recharts";
 import "./index.css";
-
-
-
-const skills = [
-  { name: "Python", value: 78, color: "#9a75ff" },
-  { name: "Data Structures", value: 56, color: "#5cbdff" },
-  { name: "Machine Learning", value: 42, color: "#45d6b0" },
-  { name: "System Design", value: 30, color: "#ffbd78" }
-];
+import { supabase } from "./lib/supabase";
 
 
 
 
-const subjectAnalytics = [
-  { name: "Python", completed: 78, hours: 2.5, color: "#4f8cff" },
-  { name: "Data Structures", completed: 56, hours: 1.8, color: "#a78bfa" },
-  { name: "Machine Learning", completed: 42, hours: 2.0, color: "#34d399" },
-  { name: "Mathematics", completed: 65, hours: 1.2, color: "#fbbf24" },
-  { name: "Cloud Computing", completed: 35, hours: 1.0, color: "#fb7185" },
-];
-
-const dailyStudyData = [
-  { day: "Mon", Python: 1.5, DSA: 2, ML: 1, Math: 0.5 },
-  { day: "Tue", Python: 2, DSA: 1.5, ML: 1.5, Math: 1 },
-  { day: "Wed", Python: 1, DSA: 2, ML: 2, Math: 0.5 },
-  { day: "Thu", Python: 2, DSA: 1, ML: 1.5, Math: 1 },
-  { day: "Fri", Python: 2.5, DSA: 1.5, ML: 1, Math: 0.5 },
-  { day: "Sat", Python: 2, DSA: 2, ML: 2, Math: 1 },
-  { day: "Sun", Python: 1.5, DSA: 1, ML: 1.5, Math: 1 },
-];
 
 
 const assessmentQuestions = [
@@ -61,6 +36,50 @@ const assessmentQuestions = [
   { skill: "Projects", question: "What is the best evidence that you can apply a technical skill?", options: ["A list of buzzwords", "A working project with documentation", "A copied screenshot", "An untested claim"], answer: 1, explanation: "A tested, documented project demonstrates practical application of skills." }
 ];
 
+const learningSubjects = [
+  { name: "Python", color: "#4f8cff", topics: [
+    { title: "Variables and data types", task: "Create variables for a name, age and CGPA." },
+    { title: "Conditions and loops", task: "Write a program to find the largest of three numbers." },
+    { title: "Functions", task: "Write a reusable function to check whether a number is prime." },
+    { title: "Lists and dictionaries", task: "Count how many times each word appears in a list." },
+    { title: "File handling and exceptions", task: "Read a text file and handle a missing-file error." }
+  ]},
+  { name: "Data Structures & Algorithms", color: "#a78bfa", topics: [
+    { title: "Arrays and strings", task: "Find the second-largest element in an array." },
+    { title: "Stacks and queues", task: "Implement a stack and explain LIFO." },
+    { title: "Linked lists", task: "Reverse a singly linked list." },
+    { title: "Searching and sorting", task: "Implement binary search on a sorted array." },
+    { title: "Trees and graphs", task: "Explain BFS and DFS with a small example." }
+  ]},
+  { name: "Machine Learning", color: "#34d399", topics: [
+    { title: "ML fundamentals", task: "Explain supervised versus unsupervised learning." },
+    { title: "Data preprocessing", task: "Handle missing values in a sample dataset." },
+    { title: "Regression", task: "Train a simple linear regression model." },
+    { title: "Classification", task: "Evaluate a classifier using accuracy and F1-score." },
+    { title: "Model evaluation", task: "Explain overfitting and how to reduce it." }
+  ]},
+  { name: "Mathematics", color: "#fbbf24", topics: [
+    { title: "Linear algebra", task: "Calculate a dot product and explain its use in ML." },
+    { title: "Probability", task: "Solve a basic probability problem using sample outcomes." },
+    { title: "Statistics", task: "Calculate mean, median and standard deviation." },
+    { title: "Calculus", task: "Explain a derivative and its role in gradient descent." },
+    { title: "Optimization", task: "Describe how gradient descent updates model parameters." }
+  ]},
+  { name: "Cloud Computing", color: "#fb7185", topics: [
+    { title: "Cloud fundamentals", task: "Compare IaaS, PaaS and SaaS." },
+    { title: "Compute and storage", task: "Choose a cloud service for hosting a web API." },
+    { title: "Networking and security", task: "Explain virtual networks and least-privilege access." },
+    { title: "Deployment", task: "Deploy a small application and document the steps." },
+    { title: "Monitoring and cost", task: "Identify ways to monitor usage and control cloud costs." }
+  ]},
+  { name: "Generative AI", color: "#ffbd78", topics: [
+    { title: "LLM fundamentals", task: "Explain tokens, context windows and model output." },
+    { title: "Prompt engineering", task: "Improve a vague prompt with clear constraints and examples." },
+    { title: "Embeddings and vector search", task: "Explain how embeddings support semantic search." },
+    { title: "RAG applications", task: "Design a document-question-answering RAG workflow." },
+    { title: "Evaluation and safety", task: "List checks for grounding, relevance and hallucinations." }
+  ]}
+];
 const careerDetails: Record<string, {
   description: string;
   companies: string[];
@@ -128,14 +147,65 @@ const getCareerDetails = (job: string) => careerDetails[job] || {
 };
 
 function App() {
-  const [user, setUser] = useState(localStorage.getItem("cb-user") || "");
+  const [user, setUser] = useState("");
   const [mode, setMode] = useState<"login" | "register">("login");
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [authEmail, setAuthEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [page, setPage] = useState("Overview");
+  const [profileEmail, setProfileEmail] = useState(localStorage.getItem("cb-profile-email") || "");
+  const [profileNameDraft, setProfileNameDraft] = useState(localStorage.getItem("cb-user") || "");
   const [settingsEmail, setSettingsEmail] = useState(localStorage.getItem("cb-settings-email") || "");
+
+  useEffect(() => {
+    let alive = true;
+
+    const restoreSession = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (!alive || error || !data.session?.user) return;
+
+      const authUser = data.session.user;
+      const displayName =
+        String(authUser.user_metadata?.display_name || "").trim() ||
+        authUser.email?.split("@")[0] ||
+        "Learner";
+
+      setUser(displayName);
+      setName(displayName);
+      setAuthEmail(authUser.email || "");
+      setProfileEmail(authUser.email || "");
+      setProfileNameDraft(displayName);
+      setSettingsEmail(authUser.email || "");
+      localStorage.setItem("cb-user", displayName);
+      localStorage.setItem("cb-profile-email", authUser.email || "");
+      localStorage.setItem("cb-settings-email", authUser.email || "");
+    };
+
+    void restoreSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!alive || !session?.user) return;
+        const authUser = session.user;
+        const displayName =
+          String(authUser.user_metadata?.display_name || "").trim() ||
+          authUser.email?.split("@")[0] ||
+          "Learner";
+
+        setUser(displayName);
+        setAuthEmail(authUser.email || "");
+        setProfileEmail(authUser.email || "");
+      }
+    );
+
+    return () => {
+      alive = false;
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
   const [settingsGoal, setSettingsGoal] = useState(localStorage.getItem("cb-settings-goal") || "2");
   const [settingsStyle, setSettingsStyle] = useState(localStorage.getItem("cb-settings-style") || "Mixed learning");
   const [settingsDifficulty, setSettingsDifficulty] = useState(localStorage.getItem("cb-settings-difficulty") || "Balanced");
@@ -243,6 +313,102 @@ function App() {
       return Array.isArray(saved) ? saved : [];
     } catch { return []; }
   });
+    const [selectedLearningSubject, setSelectedLearningSubject] = useState("Python");
+  const [completedLearningTopics, setCompletedLearningTopics] = useState<string[]>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("cb-topic-completions") || "[]");
+      return Array.isArray(saved) ? saved : [];
+    } catch { return []; }
+  });
+  const toggleLearningTopic = (topicKey: string) => {
+    setCompletedLearningTopics(previous => {
+      const next = previous.includes(topicKey)
+        ? previous.filter(item => item !== topicKey)
+        : [...previous, topicKey];
+      localStorage.setItem("cb-topic-completions", JSON.stringify(next));
+      return next;
+    });
+  };
+  const learningCompletion = Math.round(
+    completedLearningTopics.length /
+    learningSubjects.reduce((total, subject) => total + subject.topics.length, 0) * 100
+  );
+  const [studyRecords, setStudyRecords] = useState<Record<string, Record<string, number>>>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("cb-study-records") || "{}");
+      return saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {};
+    } catch { return {}; }
+  });
+
+  const getStudyDateKey = (date: Date) =>
+    `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+
+  const formatStudyTime = (seconds: number) => {
+    const safe = Math.max(0, Math.floor(seconds || 0));
+    const hours = Math.floor(safe / 3600);
+    const minutes = Math.floor((safe % 3600) / 60);
+    const secs = safe % 60;
+    return `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+  };
+
+  // Count study time while the Skill Assessment workspace is open.
+  useEffect(() => {
+    if (!page.trim().startsWith("Skill Assessment")) return;
+    const timer = window.setInterval(() => {
+      const dateKey = getStudyDateKey(new Date());
+      setStudyRecords(previous => {
+        const day = previous[dateKey] || {};
+        const next = {
+          ...previous,
+          [dateKey]: {
+            ...day,
+            [selectedLearningSubject]: (day[selectedLearningSubject] || 0) + 1
+          }
+        };
+        localStorage.setItem("cb-study-records", JSON.stringify(next));
+        return next;
+      });
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [page, selectedLearningSubject]);
+
+  const todayStudyRecord = studyRecords[getStudyDateKey(new Date())] || {};
+  const todayStudySeconds = Object.values(todayStudyRecord).reduce((sum, value) => sum + Number(value || 0), 0);
+  const subjectStudySeconds = Number(todayStudyRecord[selectedLearningSubject] || 0);
+
+  const subjectAnalytics = learningSubjects.map(subject => {
+    const total = subject.topics.length;
+    const done = subject.topics.filter(topic =>
+      completedLearningTopics.includes(subject.name + "::" + topic.title)
+    ).length;
+    const seconds = Object.values(studyRecords).reduce(
+      (sum, day) => sum + Number(day[subject.name] || 0), 0
+    );
+    return {
+      name: subject.name,
+      completed: Math.round(done / total * 100),
+      value: Math.round(done / total * 100),
+      hours: Math.round(seconds / 36) / 100,
+      color: subject.color
+    };
+  });
+
+  const dailyStudyData = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - (6 - index));
+    const record = studyRecords[getStudyDateKey(date)] || {};
+    const hours = (subject: string) => Math.round(Number(record[subject] || 0) / 36) / 100;
+    return {
+      day: date.toLocaleDateString("en-US", { weekday: "short" }),
+      Python: hours("Python"),
+      DSA: hours("Data Structures & Algorithms"),
+      ML: hours("Machine Learning"),
+      Math: hours("Mathematics"),
+      Cloud: hours("Cloud Computing"),
+      GenAI: hours("Generative AI")
+    };
+  });
   const [analyticsRange, setAnalyticsRange] = useState("30");
   const [roadmapCompleted, setRoadmapCompleted] = useState<string[]>(() => {
     try {
@@ -250,12 +416,38 @@ function App() {
       return Array.isArray(saved) ? saved : [];
     } catch { return []; }
   });
-  const toggleRoadmapMilestone = (milestone: string) => {
-    const next = roadmapCompleted.includes(milestone)
+  const toggleRoadmapMilestone = async (milestone: string) => {
+    const wasCompleted = roadmapCompleted.includes(milestone);
+    const next = wasCompleted
       ? roadmapCompleted.filter((item: string) => item !== milestone)
       : [...roadmapCompleted, milestone];
+
     setRoadmapCompleted(next);
     localStorage.setItem("cb-roadmap-completed", JSON.stringify(next));
+
+    try {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) return;
+
+      const separator = milestone.lastIndexOf(":");
+      const milestoneCareer = separator >= 0 ? milestone.slice(0, separator) : career;
+      const stageKey = separator >= 0 ? milestone.slice(separator + 1) : milestone;
+
+      const { error: syncError } = await supabase
+        .from("roadmap_progress")
+        .upsert({
+          user_id: data.user.id,
+          career: milestoneCareer,
+          stage_key: stageKey,
+          completed: !wasCompleted,
+          completed_at: !wasCompleted ? new Date().toISOString() : null,
+          updated_at: new Date().toISOString()
+        }, { onConflict: "user_id,career,stage_key" });
+
+      if (syncError) console.error("Roadmap cloud sync failed:", syncError.message);
+    } catch (err) {
+      console.error("Roadmap cloud sync failed:", err);
+    }
   };
   const [search, setSearch] = useState("");
   const [career, setCareer] = useState(localStorage.getItem("cb-career") || "Generative AI Engineer");
@@ -304,6 +496,37 @@ function App() {
   const savePlannerTasks = (next: any[]) => {
     setPlannerTasks(next);
     localStorage.setItem("cb-smart-planner-tasks", JSON.stringify(next));
+
+    void (async () => {
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (error || !data.user) return;
+
+        for (const task of next) {
+          const taskDate = task.date;
+          if (!taskDate || !task.title) continue;
+
+          const { error: syncError } = await supabase
+            .from("planner_tasks")
+            .upsert({
+              user_id: data.user.id,
+              title: task.title,
+              task_date: taskDate,
+              category: task.category || "Learning",
+              duration_minutes: Number(task.duration ?? 0),
+              priority: String(task.priority || "Medium").toLowerCase(),
+              completed: Boolean(task.done),
+              completed_at: task.done ? new Date().toISOString() : null
+            }, { onConflict: "user_id,title,task_date" });
+
+          if (syncError) {
+            console.error("Planner cloud sync failed:", syncError.message);
+          }
+        }
+      } catch (err) {
+        console.error("Planner cloud sync failed:", err);
+      }
+    })();
   };
   const [tasks, setTasks] = useState([
     { name: "Practice 2 DSA problems", done: true },
@@ -316,34 +539,183 @@ function App() {
     { role: "ai", text: "Hey! I'm your CareerBloom coach. Tell me your career goal, and let's make a plan together." }
   ]);
 
-  const logout = () => {
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      alert("Could not sign out: " + error.message);
+      return;
+    }
+
     localStorage.removeItem("cb-user");
     localStorage.removeItem("cb-career");
     setCareer("");
     setCareerSearch("");
     setOnboardingStep("career");
     setUser("");
+    setName("");
+    setAuthEmail("");
     setPassword("");
     setConfirmPassword("");
-    setOnboardingStep("done");
     setPage("Overview");
   };
-  const login = (e: React.FormEvent) => {
+
+  const login = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !password.trim()) return;
-    if (mode === "register" && password !== confirmPassword) { alert("Passwords do not match."); return; }
-    const saved = localStorage.getItem("cb-password:" + name.trim().toLowerCase());
+
+    const email = authEmail.trim().toLowerCase();
+    const displayName = name.trim();
+
+    if (!email || !password.trim()) return;
+
     if (mode === "register") {
-      localStorage.setItem("cb-password:" + name.trim().toLowerCase(), password);
-    } else if (saved && saved !== password) {
-      alert("Incorrect password. Please try again.");
+      const cleanUsername = username.trim().toLowerCase();
+
+      if (!displayName) {
+        alert("Please enter your name.");
+        return;
+      }
+      if (!/^[a-z0-9_.]{3,24}$/.test(cleanUsername)) {
+        alert("Username must be 3-24 characters: letters, numbers, dots or underscores.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+      }
+      if (password.length < 6) {
+        alert("Password must contain at least 6 characters.");
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { display_name: displayName, username: cleanUsername }
+        }
+      });
+
+      if (error) {
+        alert("Registration failed: " + error.message);
+        return;
+      }
+
+      if (!data.session) {
+        alert("Account created. Please sign in after completing any required email verification.");
+        setMode("login");
+        setName("");
+        setUsername("");
+        setPassword("");
+        setConfirmPassword("");
+        return;
+      }
+
+      setUser(displayName);
+      setProfileNameDraft(displayName);
+      setProfileEmail(email);
+      setSettingsEmail(email);
+      localStorage.setItem("cb-user", displayName);
+      localStorage.setItem("cb-profile-email", email);
+      localStorage.setItem("cb-settings-email", email);
+
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .upsert({ id: data.user.id, display_name: displayName, username: cleanUsername });
+
+        if (profileError) {
+          console.error("Profile save failed:", profileError.message);
+        }
+      }
+
+      await supabase.auth.signOut();
+      localStorage.removeItem("cb-user");
+      localStorage.removeItem("cb-career");
+      setUser("");
+      setName("");
+      setUsername("");
+      setPassword("");
+      setConfirmPassword("");
+      setMode("login");
+      setOnboardingStep("done");
+      setPage("Overview");
+
       return;
     }
-    localStorage.setItem("cb-user", name.trim());
-    setUser(name.trim());
+
+    let data: any;
+    let error: any;
+
+    if (email.includes("@")) {
+      const result = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      data = result.data;
+      error = result.error;
+    } else {
+      const { data: functionData, error: functionError } =
+        await supabase.functions.invoke("username-login", {
+          body: {
+            identifier: email,
+            password
+          }
+        });
+
+      if (functionError || !functionData?.session || !functionData?.user) {
+        alert(
+          "Username login failed. Check your username and password, or try your registered email."
+        );
+        return;
+      }
+
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: functionData.session.access_token,
+        refresh_token: functionData.session.refresh_token
+      });
+
+      if (sessionError) {
+        alert("Unable to start your session. Please try again.");
+        return;
+      }
+
+      data = {
+        user: functionData.user,
+        session: functionData.session
+      };
+      error = null;
+    }
+
+    if (error) {
+      alert("Login failed: " + error.message);
+      return;
+    }
+
+    const authUser = data.user;
+    const resolvedName =
+      String(authUser.user_metadata?.display_name || "").trim() ||
+      displayName ||
+      email.split("@")[0];
+
+    setUser(resolvedName);
+    setName(resolvedName);
+    setProfileNameDraft(resolvedName);
+    setProfileEmail(email);
+    setSettingsEmail(email);
+    localStorage.setItem("cb-user", resolvedName);
+    localStorage.setItem("cb-profile-email", email);
+    localStorage.setItem("cb-settings-email", email);
+
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .upsert({ id: authUser.id, display_name: resolvedName });
+
+    if (profileError) {
+      console.error("Profile save failed:", profileError.message);
+    }
+
     setOnboardingStep("welcome");
   };
-
 
   const sendChat = () => {
     if (!question.trim()) return;
@@ -387,8 +759,14 @@ function App() {
           <div className="eyebrow">WELCOME {mode === "login" ? "BACK" : "ABOARD"}</div>
           <h2>{mode === "login" ? "Sign in to CareerBloom" : "Create your account"}</h2>
           <p>{mode === "login" ? "Pick up where your preparation left off." : "Your next chapter starts right here."}</p>
-          <label>Name or username</label>
-          <input value={name} onChange={e=>setName(e.target.value)} placeholder="Enter your name" autoComplete="username" required/>
+          {mode === "register" && <>
+            <label>Your name</label>
+            <input value={name} onChange={e=>setName(e.target.value)} placeholder="Enter your name" autoComplete="name" required/>
+            <label>Username</label>
+            <input value={username} onChange={e=>setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ""))} placeholder="Choose a username" autoComplete="username" minLength={3} maxLength={24} required/>
+          </>}
+          <label>{mode === "login" ? "Username or email address" : "Email address"}</label>
+          <input type={mode === "login" ? "text" : "email"} value={authEmail} onChange={e=>setAuthEmail(e.target.value)} placeholder={mode === "login" ? "Username or you@example.com" : "you@example.com"} autoComplete={mode === "login" ? "username" : "email"} required/>
           <label>Password</label>
           <div className="password-wrap"><input type={showPassword?"text":"password"} value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password" autoComplete={mode==="login"?"current-password":"new-password"} required/><button className="eye" type="button" onClick={()=>setShowPassword(!showPassword)}>{showPassword?<EyeOff size={17}/>:<Eye size={17}/>}</button></div>
           {mode === "register" && <>
@@ -475,12 +853,30 @@ function App() {
                 <button
                   key={item.job}
                   className={`career-picker-option ${career === item.job ? "selected" : ""}`}
-                  onClick={() => {
+                  onClick={async () => {
                     setCareer(item.job);
                     localStorage.setItem("cb-career", item.job);
                     localStorage.setItem("cb-career-branch", item.branch);
                     setOnboardingStep("done");
                     setPage("Overview");
+
+                    const { data: authData, error: authError } = await supabase.auth.getUser();
+                    if (authError || !authData.user) {
+                      console.error("Career cloud save skipped: no authenticated user.");
+                      return;
+                    }
+
+                    const { error: saveError } = await supabase
+                      .from("profiles")
+                      .upsert({
+                        id: authData.user.id,
+                        display_name: String(authData.user.user_metadata?.display_name || authData.user.email?.split("@")[0] || "Learner"),
+                        dream_career: item.job
+                      });
+
+                    if (saveError) {
+                      console.error("Dream career cloud save failed:", saveError.message);
+                    }
                   }}
                 >
                   <span className="career-option-symbol"><BrainCircuit size={18}/></span>
@@ -524,7 +920,10 @@ function App() {
         <div className="sidebar-bottom"><div className="upgrade-card"><div className="upgrade-icon"><Sparkles size={17}/></div><b>Your future is built daily.</b><p>Small steps. Real progress.</p><button onClick={()=>setPage("Daily Planner")}>View today's plan <ArrowRight size={14}/></button></div><div className="profile-row"><button className="profile" onClick={() => setPage("Profile")}><div className="avatar">{user.slice(0,1).toUpperCase()}</div><div className="profile-copy"><b>{user}</b><small>Career explorer</small></div></button><button className="logout-btn" type="button" title="Log out" aria-label="Log out" onClick={logout}><LogOut size={17}/></button></div></div>
       </aside>
       <main className="main">
-        <header className="topbar"><button className="mobile-menu-btn icon-btn" onClick={()=>setMobileMenu(!mobileMenu)}><Menu size={20}/></button><div className="breadcrumb">Workspace <ChevronRight size={14}/><b>{page}</b></div><div className="top-actions"><div className="search-box"><Search size={16}/><input placeholder="Search your workspace..." value={search} onChange={e=>setSearch(e.target.value)}/><kbd>Ã¢Å’Ëœ K</kbd></div><button className="icon-btn" title="Notifications"><Bell size={18}/><span className="notification-dot"/></button></div></header>
+        <header className="topbar"><button className="mobile-menu-btn icon-btn" onClick={()=>setMobileMenu(!mobileMenu)}><Menu size={20}/></button><div className="breadcrumb">Workspace <ChevronRight size={14}/><b>{page}</b></div><div className="study-timer-pill" title="Study time recorded today" style={{display:"flex",flexDirection:"column",gap:3,marginRight:12,padding:"7px 11px",border:"1px solid #343452",borderRadius:10,background:"#141a2b",whiteSpace:"nowrap"}}>
+  <span style={{fontSize:11,color:"#a8b3d1"}}><Clock size={12} style={{display:"inline",verticalAlign:"-2px"}}/> Today {formatStudyTime(todayStudySeconds)}</span>
+  <strong style={{fontSize:12,color:"#45d6b0"}}>{selectedLearningSubject}: {formatStudyTime(subjectStudySeconds)}</strong>
+</div><div className="top-actions"><div className="search-box"><Search size={16}/><input placeholder="Search your workspace..." value={search} onChange={e=>setSearch(e.target.value)}/><kbd>Ã¢Å’Ëœ K</kbd></div><button className="icon-btn" title="Notifications"><Bell size={18}/><span className="notification-dot"/></button></div></header>
         {page==="Overview" ? <div className="content">
           <section className="overview-analytics">
             <div className="analytics-heading">
@@ -602,7 +1001,8 @@ function App() {
                     <Area type="monotone" dataKey="Python" stackId="1" stroke="#4f8cff" fill="#4f8cff" fillOpacity={0.35}/>
                     <Area type="monotone" dataKey="DSA" stackId="1" stroke="#a78bfa" fill="#a78bfa" fillOpacity={0.35}/>
                     <Area type="monotone" dataKey="ML" stackId="1" stroke="#34d399" fill="#34d399" fillOpacity={0.35}/>
-                    <Area type="monotone" dataKey="Math" stackId="1" stroke="#fbbf24" fill="#fbbf24" fillOpacity={0.35}/>
+                    <Area type="monotone" dataKey="Math" stackId="1" stroke="#fbbf24" fill="#fbbf24" fillOpacity={0.35}/>                    <Area type="monotone" dataKey="Cloud" stackId="1" stroke="#fb7185" fill="#fb7185" fillOpacity={0.35}/>
+                    <Area type="monotone" dataKey="GenAI" stackId="1" stroke="#ffbd78" fill="#ffbd78" fillOpacity={0.35}/>
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -615,8 +1015,88 @@ function App() {
             </div>
           </section>
         </div> : <div className="content inner-page"><div className="eyebrow"><Sparkles size={13}/> CAREERBLOOM WORKSPACE</div><h1>{page}</h1><p className="inner-intro">Make your next career move with clarity and confidence.</p>
+          {page==="Profile"&&<section className="cb-profile-page">
+  <div className="cb-profile-hero">
+    <div className="cb-profile-avatar">{(user || "U").slice(0,1).toUpperCase()}</div>
+    <div className="cb-profile-hero-copy">
+      <span className="eyebrow">YOUR CAREERBLOOM IDENTITY</span>
+      <h2>{user || "Learner"}</h2>
+      <p>Building skills today for the career you want tomorrow.</p>
+    </div>
+    <span className="cb-profile-tag">Career Explorer</span>
+  </div>
+
+  <section className="panel cb-profile-card">
+    <div className="cb-profile-card-heading"><div><h3>Personal information</h3><p>Edit your profile details. Changes are saved on this browser.</p></div></div>
+    <div className="cb-profile-form">
+      <label className="cb-profile-field">Display name
+        <input value={profileNameDraft} onChange={e=>setProfileNameDraft(e.target.value)} placeholder="Enter your name" maxLength={60}/>
+      </label>
+      <label className="cb-profile-field">Email address
+        <input type="email" value={profileEmail} onChange={e=>setProfileEmail(e.target.value)} placeholder="Enter your email (optional)"/>
+      </label>
+      <label className="cb-profile-field">Dream career
+        <input value={career || "Not selected"} readOnly/>
+      </label>
+      <label className="cb-profile-field">Account type
+        <input value="Career Explorer · Local demo" readOnly/>
+      </label>
+    </div>
+    <button className="primary-btn" onClick={async()=>{
+      const clean=profileNameDraft.trim();
+      if(clean.length<2){alert("Please enter a name with at least 2 characters.");return;}
+
+      localStorage.setItem("cb-user",clean);
+      localStorage.setItem("cb-profile-email",profileEmail.trim());
+      setUser(clean);
+      setProfileNameDraft(clean);
+
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (authError || !authData.user) {
+        alert("Your session could not be verified. Please sign in again.");
+        return;
+      }
+
+      const { error: saveError } = await supabase
+        .from("profiles")
+        .upsert({
+          id: authData.user.id,
+          display_name: clean,
+          dream_career: career || null
+        });
+
+      if (saveError) {
+        console.error("Profile save failed:", saveError.message);
+        alert("Profile was kept on this device, but cloud saving failed. Please try again.");
+        return;
+      }
+
+      alert("Profile saved successfully.");
+    }}>Save profile changes <CheckCircle2 size={16}/></button>
+  </section>
+
+  <div className="cb-profile-stats">
+    <div className="panel cb-profile-stat"><span className="cb-profile-stat-icon">✦</span><small>Dream career</small><b>{career || "Not selected"}</b><button onClick={()=>setPage("Dream Career")}>Edit career →</button></div>
+    <div className="panel cb-profile-stat"><span className="cb-profile-stat-icon">◎</span><small>Skill assessment</small><b>{assessmentFinished ? "Completed" : "Not completed"}</b><button onClick={()=>setPage("Skill Assessment")}>View assessment →</button></div>
+    <div className="panel cb-profile-stat"><span className="cb-profile-stat-icon">✓</span><small>Planner tasks done</small><b>{tasks.filter(t=>t.done).length} of {tasks.length}</b><button onClick={()=>setPage("Daily Planner")}>Open planner →</button></div>
+  </div>
+
+  <section className="panel cb-profile-card">
+    <div className="cb-profile-card-heading"><div><h3>Your workspace</h3><p>Quick access to your learning journey.</p></div></div>
+    <div className="cb-profile-links">
+      <button onClick={()=>setPage("My Roadmap")}><span>My Roadmap</span><span>View learning stages →</span></button>
+      <button onClick={()=>setPage("Improvement Analytics")}><span>Improvement Analytics</span><span>Review your progress →</span></button>
+      <button onClick={()=>setPage("Settings")}><span>Settings & Preferences</span><span>Manage your preferences →</span></button>
+    </div>
+    <div className="cb-profile-account-actions">
+      <p>Profile and learning data are stored in this browser. This demo profile is not a verified online account.</p>
+      <button className="cb-profile-logout" onClick={logout}><LogOut size={16}/> Log out</button>
+    </div>
+  </section>
+</section>}
           {page==="Dream Career"&&<section className="panel inner-panel"><h3>Choose your dream career</h3><p>Search for a role and set your career goal.</p><div className="career-search"><Search size={18}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search careers, e.g. AI Engineer"/></div><div className="career-options">{["Generative AI Engineer","Machine Learning Engineer","Software Engineer","Data Scientist","Cloud AI Engineer","AI Researcher"].filter(c=>c.toLowerCase().includes(search.toLowerCase())).map(c=><button key={c} className={`career-option ${career===c?"selected":""}`} onClick={()=>{setCareer(c);localStorage.setItem("cb-career",c)}}><span className="feature-icon"><BrainCircuit size={18}/></span><span><b>{c}</b><small>Explore skills and learning paths</small></span>{career===c?<CheckCircle2 size={19}/>:<ChevronRight size={18}/>}</button>)}</div><button className="primary-btn" onClick={()=>setPage("My Roadmap")}>Build my roadmap <ArrowRight size={16}/></button></section>
-}{page==="Dream Career"&&<section className="panel inner-panel dream-career-details">
+}
+          {page==="Dream Career"&&<section className="panel inner-panel dream-career-details">
   <div className="eyebrow"><BrainCircuit size={14}/> YOUR SELECTED DREAM CAREER</div>
   <h2>{career || "Choose a career"}</h2>
   <p>{getCareerDetails(career).description}</p>
@@ -644,7 +1124,57 @@ function App() {
     </div>
     <div className="assessment-career"><span>YOUR DREAM CAREER</span><b>{career || "Choose a career"}</b></div>
   </div>
-  <div className="assessment-layout">
+    <section className="panel" style={{marginBottom:24,padding:24}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:16,flexWrap:"wrap",marginBottom:18}}>
+      <div>
+        <span className="eyebrow">LEARN BY SUBJECT</span>
+        <h3 style={{margin:"8px 0"}}>Topics and practical tasks</h3>
+        <p className="assessment-muted" style={{margin:0}}>Select a subject, complete its tasks, and track your real progress.</p>
+      </div>
+      <div style={{textAlign:"right"}}>
+        <strong style={{fontSize:26}}>{learningCompletion}%</strong>
+        <div className="assessment-muted">Overall topics completed</div>
+      </div>
+    </div>
+    <div style={{height:8,background:"#252b43",borderRadius:10,overflow:"hidden",marginBottom:20}}>
+      <div style={{height:"100%",width:learningCompletion+"%",background:"linear-gradient(90deg,#8b6cff,#45d6b0)",transition:"width .25s"}} />
+    </div>
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(175px,1fr))",gap:12,marginBottom:22}}>
+      {learningSubjects.map(subject => {
+        const done = subject.topics.filter(topic => completedLearningTopics.includes(subject.name+"::"+topic.title)).length;
+        const active = selectedLearningSubject === subject.name;
+        return <button key={subject.name} type="button" onClick={() => setSelectedLearningSubject(subject.name)}
+          style={{textAlign:"left",padding:16,borderRadius:14,border:active?"1px solid "+subject.color:"1px solid #303750",background:active?"#20243a":"#141a2b",color:"#f5f7ff",cursor:"pointer"}}>
+          <span style={{display:"block",fontWeight:700,marginBottom:8}}>{subject.name}</span>
+          <span style={{display:"block",fontSize:13,color:"#a8b3d1"}}>{done}/{subject.topics.length} topics completed</span>
+          <span style={{display:"block",height:5,background:"#303750",borderRadius:8,overflow:"hidden",marginTop:12}}>
+            <span style={{display:"block",height:"100%",width:(done/subject.topics.length*100)+"%",background:subject.color}} />
+          </span>
+        </button>;
+      })}
+    </div>
+    {learningSubjects.filter(subject => subject.name === selectedLearningSubject).map(subject => (
+      <div key={subject.name}>
+        <h3 style={{marginBottom:6}}>{subject.name} learning path</h3>
+        <p className="assessment-muted">Mark a topic complete after you have practised it.</p>
+        <div style={{display:"grid",gap:10}}>
+          {subject.topics.map((topic,index) => {
+            const key = subject.name+"::"+topic.title;
+            const done = completedLearningTopics.includes(key);
+            return <label key={key} style={{display:"flex",alignItems:"flex-start",gap:12,padding:16,border:"1px solid #303750",borderRadius:12,background:done?"rgba(69,214,176,.07)":"#141a2b",cursor:"pointer"}}>
+              <input type="checkbox" checked={done} onChange={() => toggleLearningTopic(key)} style={{marginTop:4,accentColor:"#45d6b0",width:17,height:17,flexShrink:0}} />
+              <span style={{flex:1}}>
+                <strong style={{display:"block",marginBottom:5,color:done?"#45d6b0":"#f5f7ff"}}>{index+1}. {topic.title}</strong>
+                <span style={{display:"block",fontSize:13,color:"#a8b3d1"}}>{topic.task}</span>
+              </span>
+              <span style={{fontSize:12,color:done?"#45d6b0":"#a8b3d1"}}>{done?"Completed":"Mark done"}</span>
+            </label>;
+          })}
+        </div>
+      </div>
+    ))}
+  </section>
+<div className="assessment-layout">
     <section className="panel assessment-main">
       {!assessmentFinished ? <>
         <div className="assessment-topline"><span>QUESTION {assessmentIndex + 1} OF {assessmentQuestions.length}</span><span>{Math.round((Object.keys(assessmentAnswers).length / assessmentQuestions.length) * 100)}% answered</span></div>
@@ -682,7 +1212,32 @@ function App() {
               setAssessmentHistory(history);
               localStorage.setItem("cb-assessment-history", JSON.stringify(history));
               setAssessmentFinished(true);
-              localStorage.setItem("cb-assessment-finished", "true"); }}>Submit assessment <CheckCircle2 size={16}/></button>}
+              localStorage.setItem("cb-assessment-finished", "true");
+
+              void (async () => {
+                try {
+                  const { data, error } = await supabase.auth.getUser();
+                  if (error || !data.user) return;
+
+                  const { error: syncError } = await supabase
+                    .from("assessments")
+                    .insert({
+                      user_id: data.user.id,
+                      score: attempt.score,
+                      total_questions: attempt.total,
+                      answers: assessmentAnswers,
+                      skill_breakdown: attempt.breakdown,
+                      completed_at: attempt.date
+                    });
+
+                  if (syncError) {
+                    console.error("Assessment cloud sync failed:", syncError.message);
+                  }
+                } catch (err) {
+                  console.error("Assessment cloud sync failed:", err);
+                }
+              })();
+            }}> Submit assessment <CheckCircle2 size={16}/></button>}
         </div>
       </> : <>
         <span className="eyebrow"><CheckCircle2 size={14}/> ASSESSMENT COMPLETE</span>
@@ -729,7 +1284,7 @@ function App() {
   </div>
 </section>}
 
-{page==="Skill Gap Analyzer"&&<section className="panel inner-panel"><h3>Your current skill profile</h3><p>Use these starter estimates to identify what to focus on next.</p>{skills.map(s=><div className="gap-row" key={s.name}><div><b>{s.name}</b><span>{s.value}%</span></div><div className="skill-bar"><span style={{width:s.value+"%",background:s.color}}/></div><small>{s.value<50?"Priority: practice and build a project":"Keep practising and demonstrate your skills"}</small></div>)}<button className="primary-btn" onClick={()=>setPage("My Roadmap")}>View learning roadmap <ArrowRight size={16}/></button></section>}
+{page==="Skill Gap Analyzer"&&<section className="panel inner-panel"><h3>Your current skill profile</h3><p>Use these starter estimates to identify what to focus on next.</p>{subjectAnalytics.map(s=><div className="gap-row" key={s.name}><div><b>{s.name}</b><span>{s.completed}%</span></div><div className="skill-bar"><span style={{width:s.completed+"%",background:s.color}}/></div><small>{s.completed<50?"Priority: practice and build a project":"Keep practising and demonstrate your skills"}</small></div>)}<button className="primary-btn" onClick={()=>setPage("My Roadmap")}>View learning roadmap <ArrowRight size={16}/></button></section>}
           {page==="My Roadmap"&&<section className="panel inner-panel career-roadmap">
   <div className="eyebrow"><Sparkles size={14}/> PERSONALIZED CAREER PLAN</div>
   <h2>My Roadmap to {career || "Your Dream Career"}</h2>
@@ -1032,6 +1587,19 @@ function App() {
 }
 
 export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

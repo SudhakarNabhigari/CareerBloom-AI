@@ -407,3 +407,35 @@
 .cb-light-theme .cb-field{color:#454a64}
 .cb-light-theme .cb-field input,.cb-light-theme .cb-field select{background:#f8f8ff;color:#24243b;border-color:#dfe1ef}
 @media(max-width:680px){.cb-settings-hero{padding:19px}.cb-settings-card{padding:17px!important}.cb-settings-grid{grid-template-columns:1fr;gap:13px}.cb-settings-actions{display:grid;grid-template-columns:1fr}.cb-settings-actions button{width:100%}.cb-settings-footer{align-items:flex-start;flex-direction:column}}
+
+/* CareerBloom AI - Profile page */
+.cb-profile-page{display:grid;gap:18px;max-width:1100px;margin:0 auto;padding-bottom:32px}
+.cb-profile-hero{display:flex;align-items:center;gap:19px;flex-wrap:wrap;padding:25px;border:1px solid rgba(139,108,255,.25);border-radius:20px;background:radial-gradient(circle at 85% 20%,rgba(139,108,255,.18),transparent 35%),linear-gradient(120deg,#11182b,#17172f)}
+.cb-profile-avatar{width:76px;height:76px;display:grid;place-items:center;flex-shrink:0;border-radius:24px;background:linear-gradient(135deg,#a18aff,#6651d9);color:#fff;font-size:31px;font-weight:750;box-shadow:0 8px 30px rgba(111,83,225,.22)}
+.cb-profile-hero-copy{flex:1;min-width:200px}
+.cb-profile-hero-copy h2{margin:8px 0;font-size:28px}
+.cb-profile-hero-copy p,.cb-profile-card-heading p{margin:0;color:#a4aec5;font-size:12px;line-height:1.7}
+.cb-profile-tag{padding:8px 12px;border-radius:10px;background:rgba(69,214,176,.1);color:#6be0bd;font-size:11px}
+.cb-profile-card{padding:23px!important;border:1px solid rgba(151,163,190,.14)}
+.cb-profile-card-heading{margin-bottom:19px}
+.cb-profile-card-heading h3{margin:0 0 5px;font-size:17px}
+.cb-profile-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.cb-profile-field{display:flex;flex-direction:column;gap:8px;min-width:0;color:#cbd2e4;font-size:12px;font-weight:600}
+.cb-profile-field input{box-sizing:border-box;width:100%;min-width:0;padding:12px 13px;border:1px solid rgba(157,169,198,.2);border-radius:10px;background:#0d1426;color:#eef0fb;outline:none}
+.cb-profile-field input:focus{border-color:#8b6cff;box-shadow:0 0 0 3px rgba(139,108,255,.12)}
+.cb-profile-field input[readonly]{opacity:.75}
+.cb-profile-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.cb-profile-stat{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:19px!important;min-width:0}
+.cb-profile-stat-icon{display:grid;place-items:center;width:35px;height:35px;border-radius:11px;background:rgba(139,108,255,.14);color:#b6a2ff;font-size:20px}
+.cb-profile-stat small{color:#9ca7bf;font-size:11px}
+.cb-profile-stat b{font-size:15px;overflow-wrap:anywhere}
+.cb-profile-stat button{border:0;background:none;color:#b5a0ff;font-size:11px;cursor:pointer;padding:0;text-align:left}
+.cb-profile-links{display:grid;gap:8px}
+.cb-profile-links button{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;padding:14px;border:1px solid rgba(151,163,190,.14);border-radius:11px;background:rgba(255,255,255,.015);color:#eef0fb;cursor:pointer}
+.cb-profile-links button span:first-child{font-size:13px;font-weight:650}
+.cb-profile-links button span:last-child{font-size:11px;color:#a99aff}
+.cb-profile-links button:hover{border-color:rgba(139,108,255,.5);background:rgba(139,108,255,.06)}
+.cb-profile-account-actions{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px solid rgba(151,163,190,.14)}
+.cb-profile-account-actions p{margin:0;max-width:600px;color:#929db7;font-size:11px;line-height:1.7}
+.cb-profile-logout{display:inline-flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid rgba(255,111,135,.3);border-radius:10px;background:rgba(255,88,119,.08);color:#ff9aac;cursor:pointer}
+@media(max-width:700px){.cb-profile-form{grid-template-columns:1fr}.cb-profile-stats{grid-template-columns:1fr}.cb-profile-hero{padding:18px}.cb-profile-card{padding:17px!important}.cb-profile-tag{margin-left:0}.cb-profile-links button{align-items:flex-start;flex-direction:column}}
