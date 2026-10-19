@@ -4987,3 +4987,94 @@
     animation: none !important;
   }
 }
+
+/* CareerBloom AI - Colorful Login Enhancement */
+.auth-left {
+  background:
+    radial-gradient(ellipse at 12% 18%, rgba(124, 58, 237, .24), transparent 36%),
+    radial-gradient(ellipse at 85% 78%, rgba(45, 212, 191, .16), transparent 34%),
+    linear-gradient(145deg, #0b1025 0%, #17143b 52%, #101d35 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-right {
+  background:
+    radial-gradient(ellipse at 15% 15%, rgba(139, 92, 246, .18), transparent 34%),
+    radial-gradient(ellipse at 90% 85%, rgba(45, 212, 191, .15), transparent 32%),
+    linear-gradient(135deg, #10152e, #211548 52%, #102a3a);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-card {
+  border: 1px solid rgba(167, 139, 250, .3);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .28), 0 0 35px rgba(139, 92, 246, .12);
+  backdrop-filter: blur(18px);
+  animation: cb-login-appear .65s ease-out both;
+}
+
+.float-symbol {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  font-size: 0;
+  background: linear-gradient(145deg, rgba(139, 92, 246, .25), rgba(45, 212, 191, .17));
+  border: 1px solid rgba(196, 181, 253, .4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .18), 0 0 24px rgba(139, 92, 246, .16);
+  backdrop-filter: blur(10px);
+  animation: cb-float 4s ease-in-out infinite;
+}
+
+.float-symbol::before {
+  font-size: 29px;
+  line-height: 1;
+}
+
+.symbol-cap::before { content: "\1F393"; }
+.symbol-book::before { content: "\1F4DA"; }
+.symbol-bag::before { content: "\1F4BB"; }
+
+.symbol-book { animation-delay: -.9s; }
+.symbol-bag { animation-delay: -1.8s; }
+
+.auth-left .float-card {
+  border: 1px solid rgba(167, 139, 250, .3);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, .2);
+}
+
+.auth-left .journey {
+  border-color: rgba(167, 139, 250, .25);
+}
+
+.auth-left .journey-line span {
+  background: linear-gradient(135deg, #8b5cf6, #2dd4bf);
+  box-shadow: 0 0 16px rgba(139, 92, 246, .3);
+}
+
+.auth-card button[type="submit"] {
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+
+.auth-card button[type="submit"]:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: 0 10px 28px rgba(124, 58, 237, .28);
+}
+
+@keyframes cb-float {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-10px) rotate(3deg); }
+}
+
+@keyframes cb-login-appear {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float-symbol, .auth-card { animation: none !important; }
+}
+
