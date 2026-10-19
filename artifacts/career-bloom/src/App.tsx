@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Sparkles, Compass, Target, TrendingUp, LayoutDashboard, User, ShieldCheck, Download, Trash2, RotateCcw, HeartHandshake,
   Map, CalendarDays, Bell, Search,
@@ -756,13 +756,13 @@ function App() {
             <div className="person"><div className="hair"/><div className="face"><span/><span/><i/></div><div className="body"/></div>
             <div className="laptop"><div className="screen"><i/><i/><i/></div><div className="base"/></div>
             <div className="float-card float-right"><CheckCircle2 size={18}/><div><b>Roadmap progress</b><small>One step at a time</small></div></div>
-            <div className="journey"><small>ÃƒÂ¢Ã¢â‚¬â€Ã‚Â YOUR JOURNEY</small><div className="journey-line"><span>01</span><span>02</span><span>03</span><span>04</span></div><div className="journey-labels"><small>Discover</small><small>Learn</small><small>Build</small><small>Launch</small></div></div>
+            <div className="journey"><small>YOUR JOURNEY</small><div className="journey-line"><span>01</span><span>02</span><span>03</span><span>04</span></div><div className="journey-labels"><small>Discover</small><small>Learn</small><small>Build</small><small>Launch</small></div></div>
           </div>
           <small className="footer-note">A private, browser-only workspace for your career journey.</small>
         </div>
       </section>
       <section className="auth-right">
-        <span className="float-symbol symbol-cap">ÃƒÂ°Ã…Â¸Ã…Â½Ã¢â‚¬Å“</span><span className="float-symbol symbol-book">ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã…â€œ</span><span className="float-symbol symbol-bag">ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â¼</span>
+        <span className="float-symbol symbol-cap">GRAD</span><span className="float-symbol symbol-book">LEARN</span><span className="float-symbol symbol-bag">CAREER</span>
         <form className="auth-card" onSubmit={login}>
           <div className="eyebrow">WELCOME {mode === "login" ? "BACK" : "ABOARD"}</div>
           <h2>{mode === "login" ? "Sign in to CareerBloom" : "Create your account"}</h2>
@@ -1711,7 +1711,7 @@ function App() {
               </div>
 
               <div className="improvement-stats">
-                <article className="improvement-stat"><span>Latest assessment</span><b>{latest ? `${latest.score}%` : "Ã¢â‚¬â€"}</b><small>{latest ? new Date(latest.date).toLocaleDateString("en-IN") : "No saved attempt"}</small></article>
+                <article className="improvement-stat"><span>Latest assessment</span><b>{latest ? `${latest.score}%` : "No data yet"}</b><small>{latest ? new Date(latest.date).toLocaleDateString("en-IN") : "No saved attempt"}</small></article>
                 <article className="improvement-stat"><span>Change vs previous</span><b className={scoreChange === null ? "" : scoreChange >= 0 ? "analytics-positive" : "analytics-negative"}>{scoreChange === null ? "Ã¢â‚¬â€" : `${scoreChange > 0 ? "+" : ""}${scoreChange} pts`}</b><small>{previous ? "Compared with previous attempt" : "Requires two attempts"}</small></article>
                 <article className="improvement-stat"><span>Planner completion</span><b>{relevantTasks.length ? `${taskRate}%` : "Ã¢â‚¬â€"}</b><small>{doneTasks.length} of {relevantTasks.length} saved tasks</small></article>
                 <article className="improvement-stat"><span>Roadmap progress</span><b>{roadmapRate}%</b><small>{completedForCareer} of {roadmapTotal} milestones</small></article>
